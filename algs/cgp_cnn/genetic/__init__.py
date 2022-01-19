@@ -1,0 +1,1 @@
+name = 'cgp_cnn'
