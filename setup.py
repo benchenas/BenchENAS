@@ -8,7 +8,7 @@ setuptools.setup(
     author="benchenas",
     author_email="benchenas99@gmail.com",
     description="A method of benchmark",
-    long_description=long_description,
+    long_description=description,
     long_description_content_type="text/markdown",
     classifiers=[
         "Programming Language :: Python :: 3",
