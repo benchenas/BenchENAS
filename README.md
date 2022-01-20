@@ -24,7 +24,7 @@
 
 
 
-- #Requirements:
+- # Requirements:
 
  - Center Computer:
    - redis (ubuntu software, start using the command redis-server --protected-mode on)
