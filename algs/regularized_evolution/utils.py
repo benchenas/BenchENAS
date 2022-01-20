@@ -303,7 +303,7 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), cell_net_normal.id)
         else:
-            file_name = '%s/regularized_evolution_%s.py' % (os.path.join(get_local_path(), 'examples'), cell_net_normal.id)
+            file_name = '%s/regularized_evolution_%s.py' % (os.path.join(get_local_path(), 'example'), cell_net_normal.id)
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))
