@@ -1,1 +1,0 @@
-name = 'cgp_cnn'
