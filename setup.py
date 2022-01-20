@@ -8,7 +8,7 @@ setuptools.setup(
     author="benchenas",
     author_email="benchenas99@gmail.com",
     description="A method of benchmark",
-    long_description=description,
+    url="https://github.com/benchenas/BenchENA",
     long_description_content_type="text/markdown",
     classifiers=[
         "Programming Language :: Python :: 3",
