@@ -1,0 +1,40 @@
+# similar encoding to Genetic CNN paper
+# we add one more skip connection bit
+# L. Xie and A. Yuille, "Genetic CNN,"
+# 2017 IEEE International Conference on Computer Vision (ICCV)
+import numpy as np
+
+
+def phase_dencode(phase_bit_string):
+    n = int(np.sqrt(2 * len(phase_bit_string) - 7/4) - 1/2)
+    genome = []
+    for i in range(n):
+        operator = []
+        for j in range(i + 1):
+            operator.append(phase_bit_string[int(i * (i + 1) / 2 + j)])
+        genome.append(operator)
+    genome.append([phase_bit_string[-1]])
+    return genome
+
+
+def convert(bit_string, n_phases=3):
+    # assumes bit_string is a np array
+    assert bit_string.shape[0] % n_phases == 0
+    phase_length = bit_string.shape[0] // n_phases
+    genome = []
+    for i in range(0, bit_string.shape[0], phase_length):
+        genome.append((bit_string[i:i+phase_length]).tolist())
+
+    return genome
+
+
+def decode(genome):
+    genotype = []
+    for gene in genome:
+        genotype.append(phase_dencode(list(gene)))
+
+    return genotype
+
+
+if __name__ == "__main__":
+    n_phases = 3
