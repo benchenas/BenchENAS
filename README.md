@@ -24,7 +24,7 @@
 
 *BenchENAS* is a benchmarking platform to conduct fair comparisons upon Evolutionary algorithm based Neural Architecture Search (ENAS) algorithms.
 
-<p align="justify">Eight representative state-of-the-art ENAS algorithms, popular data processing techniques for 3 widely used benchmark datasets, as well as configurable trainer settings such as learning rate policy, optimizers, batch size, and training epochs, have been implemented intothe proposed BenchENAS platform. To this end, the related researchers can illustrate the innovativeness of their proposed algorithms by making fair comparisons with the state-of-the-art ENAS algorithms. Furthermore, An efficient parallel component and a cache component are designed to accelerate the fitness evaluation phase in BenchENAS.</p>
+<p align="justify">Nine representative state-of-the-art ENAS algorithms, popular data processing techniques for 3 widely used benchmark datasets, as well as configurable trainer settings such as learning rate policy, optimizers, batch size, and training epochs, have been implemented intothe proposed BenchENAS platform. To this end, the related researchers can illustrate the innovativeness of their proposed algorithms by making fair comparisons with the state-of-the-art ENAS algorithms. Furthermore, An efficient parallel component and a cache component are designed to accelerate the fitness evaluation phase in BenchENAS.</p>
 
 The parallel component is based on the parallel training mechanism of existing deep learning libraries and can be used to speed up the running of the corresponding ENAS algorithm. 
 
@@ -96,6 +96,8 @@ main.run(alg_list, train_list, gpu_info_list)
 - CGP_CNN: [A Genetic Programming Approach to Designing Convolutional Neural Network Architecture](https://arxiv.org/abs/1704.00764)
 
 - CNN_GA: [Automatically Designing CNN Architectures Using the Genetic Algorithm for Image Classification](https://arxiv.org/abs/1808.03818)
+
+- Evo_CNN: [Evolving deep convolutional neural networks for image classification](https://arxiv.org/abs/1803.06492)
 
 - Genetic_CNN: [Genetic CNN](https://arxiv.org/abs/1703.01513v1)
 
