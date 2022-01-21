@@ -136,7 +136,9 @@ class EvolveCNN(object):
 
 class Run(object):
     def __init__(self, alg_list, train_list, gpu_info_list):
+        from algs.cgp_cnn.genetic.statusupdatetool import StatusUpdateTool
         Config_ini.amend(alg_list, train_list, gpu_info_list)
+        StatusUpdateTool.change_lam(alg_list['pop_size'])
 
     def do(self):
         from algs.cgp_cnn.genetic.statusupdatetool import StatusUpdateTool
