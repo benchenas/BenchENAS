@@ -19,7 +19,7 @@ def test_alg_script():
     """
         Testing pytorch scripts in setting environment
     """
-    algs = ['aecnn', 'cnn_ga', 'genetic_CNN', 'hierarchical_representations',
+    algs = ['aecnn', 'cnn_ga', 'evocnn', 'genetic_CNN', 'hierarchical_representations',
             'large_scale']
     batch_size = 16
     shuffle = True
