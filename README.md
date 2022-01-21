@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-   <a href="https://github.com/benchenas/BenchENA/blob/master/LICENSE">
+   <a href="https://github.com/benchenas/BenchENAS/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="CircleCI" />
   </a>
    <a href="https://pypi.org/project/benchENAS/1.1.1/">
     <img src="https://img.shields.io/pypi/v/benchENAS?color=blue&label=pypi" alt="CircleCI" />
   </a>
-    <a href="https://github.com/benchenas/BenchENA/actions">
+    <a href="https://github.com/benchenas/BenchENAS/actions">
     <img src="https://github.com/benchenas/BenchENA/workflows/CI/badge.svg" alt="Coverage" />
   </a>
     <a href="https://benchenas.com/api/index.html">
@@ -111,5 +111,5 @@ main.run(alg_list, train_list, gpu_info_list)
 
 ## License
 
-- [MIT License](https://github.com/benchenas/BenchENA/blob/master/LICENSE)
+- [MIT License](https://github.com/benchenas/BenchENAS/blob/master/LICENSE)
 
