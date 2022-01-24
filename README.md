@@ -24,11 +24,9 @@
 
 *BenchENAS* is a benchmarking platform to conduct fair comparisons upon Evolutionary algorithm based Neural Architecture Search (ENAS) algorithms.
 
-<p align="justify">Nine representative state-of-the-art ENAS algorithms, popular data processing techniques for 3 widely used benchmark datasets, as well as configurable trainer settings such as learning rate policy, optimizers, batch size, and training epochs, have been implemented intothe proposed BenchENAS platform. To this end, the related researchers can illustrate the innovativeness of their proposed algorithms by making fair comparisons with the state-of-the-art ENAS algorithms. Furthermore, An efficient parallel component and a cache component are designed to accelerate the fitness evaluation phase in BenchENAS.</p>
+<p align="justify">Nine representative state-of-the-art ENAS algorithms, popular data processing techniques for 3 widely used benchmark datasets, as well as configurable trainer settings such as learning rate policy, optimizers, batch size, and training epochs, have been implemented intothe proposed BenchENAS platform. To this end, the related researchers can illustrate the innovativeness of their proposed algorithms by making fair comparisons with the state-of-the-art ENAS algorithms. </p>
 
-The parallel component is based on the parallel training mechanism of existing deep learning libraries and can be used to speed up the running of the corresponding ENAS algorithm. 
-
- The cache component is used to record the fitness values for each architecture and to reuse the fitness values in the cache when an individual of the same architecture
+Furthermore, An efficient parallel component and a cache component are designed to accelerate the fitness evaluation phase in BenchENAS. The parallel component is based on the parallel training mechanism of existing deep learning libraries and can be used to speed up the running of the corresponding ENAS algorithm. The cache component is used to record the fitness values for each architecture and to reuse the fitness values in the cache when an individual of the same architecture
 appears.
 
 
