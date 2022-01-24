@@ -30,7 +30,7 @@ def parse_nvidia_info(gpu_enabled_list, nvidia_info):
             remove_list.append(line)
         elif line_split[1] == str(num_gpu):
             num_gpu = num_gpu + 1
-        elif line_split[1][-1] != "%":
+        elif line_split[1][-1] != "%" and line_split[1] != 'N/A':
             remove_list.append(line)
     for line in remove_list:
         list1.remove(line)
