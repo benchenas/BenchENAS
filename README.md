@@ -15,7 +15,7 @@
     <a href="https://benchenas.com/api/index.html">
     <img src="https://img.shields.io/website/http/benchenas.com/api/index.html.svg?down_color=red&down_message=offline&up_message=online" />
   </a>
-    <a href="https://arxiv.org/abs/2108.03856">
+    <a href="https://ieeexplore.ieee.org/document/9697075">
     <img src="https://img.shields.io/badge/ArXiv-2108.03856-orange.svg"/>
   </a>
  </p>
@@ -106,6 +106,19 @@ main.run(alg_list, train_list, gpu_info_list)
 - NSGA-Net: [NSGA-Net: Neural Architecture Search using Multi-Objective Genetic Algorithm](https://arxiv.org/abs/1810.03522v2)
 
 - Regularized_Evo: [Regularized Evolution for Image Classfier Architecture Search](https://arxiv.org/abs/1802.01548v7)
+
+## Citing
+```python
+@ARTICLE{9697075,
+  author={Xie, Xiangning and Liu, Yuqiao and Sun, Yanan and Yen, Gary G. and Xue, Bing and Zhang, Mengjie},
+  journal={IEEE Transactions on Evolutionary Computation}, 
+  title={BenchENAS: A Benchmarking Platform for Evolutionary Neural Architecture Search}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={1-1},
+  doi={10.1109/TEVC.2022.3147526}}
+```
 
 ## License
 
