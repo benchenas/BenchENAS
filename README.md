@@ -108,6 +108,7 @@ main.run(alg_list, train_list, gpu_info_list)
 - Regularized_Evo: [Regularized Evolution for Image Classfier Architecture Search](https://arxiv.org/abs/1802.01548v7)
 
 ## Citing
+View the [published paper](https://ieeexplore.ieee.org/document/9697075). If you use or reference BenchENAS, please cite:
 ```python
 @ARTICLE{9697075,
   author={Xie, Xiangning and Liu, Yuqiao and Sun, Yanan and Yen, Gary G. and Xue, Bing and Zhang, Mengjie},
