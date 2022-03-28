@@ -31,7 +31,7 @@ appears.
 
 
 ## Installation
-
+We provide two way to install BenchENAS.
 #### From python package
 
 Please click [Here](https://github.com/benchenas/BenchENAS/tree/master/BenchENAS_python_package).
