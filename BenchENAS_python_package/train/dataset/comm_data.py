@@ -97,7 +97,7 @@ class FDataLoader(BaseDataloader):
 
     def __get_train_loader(self, root, batch_size, shuffle, show_sample,
                            num_workers=1, pin_memory=False):
-        train_dir = os.path.join(self.root, 'train')
+        train_dir = os.path.join(root, 'train')
         train_set = DataDeal(train_dir, self.input_size)
 
         train_loader = DataLoader(train_set, batch_size=batch_size,
@@ -123,7 +123,7 @@ std = [0.229, 0.224, 0.225]
 class DataDeal(Dataset):
     def __init__(self, path, input_size):
         data_root = pathlib.Path(path)
-        img_suffix = ['.jpg', '.png', '.jpeg', '.gif', '.JPG', '.PNG', '.JPEG', '.GIF']
+        img_suffix = ['.jpg', '.png', '.jpeg', '.gif']
         all_image_paths = list()
         for i in img_suffix:
             img_name = '*/*' + i
