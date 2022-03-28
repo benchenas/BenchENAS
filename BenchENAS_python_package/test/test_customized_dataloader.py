@@ -9,6 +9,7 @@ from train.dataset.comm_data import FDataLoader
 def test_customized_loader():
     Config_ini.batch_size = 50
     Config_ini.total_epoch = 50
+    os.chdir(sys.path[0])
     data_dir = os.path.join(os.getcwd(), 'example/eye_dataset')
     print('dir', data_dir)
     Config_ini.dataset = 'customized'
