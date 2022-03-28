@@ -29,7 +29,7 @@ Here's a quick run down of the main steps of installing and running BenchENAS. F
 
 1. Download the source code.
 ```
-$ git clone 
+$ git clone https://github.com/benchenas/BenchENAS.git
 ```
 2. Install sshpass.
 ```
