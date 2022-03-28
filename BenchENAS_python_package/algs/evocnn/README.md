@@ -1,13 +1,7 @@
 # EvoCNN
+This is the code for the paper of [Completely automated CNN architecture design based on blocks](https://ieeexplore.ieee.org/document/8742788).
 
-This is the code for the paper of *Evolving deep convolutional neural networks for image classification*.
-
-## Dependencies
-
-- numpy
-- torchvision
-- pytorch
-
+## Cite
 ```
 @article{sun2019evolving,
   title={Evolving deep convolutional neural networks for image classification},
@@ -20,4 +14,3 @@ This is the code for the paper of *Evolving deep convolutional neural networks f
   publisher={IEEE}
 }
 ```
-
