@@ -1,5 +1,5 @@
 # aecnn
-This is the code for the paper of *Completely Automated CNN Architecture Design Based on Blocks*.
+This is the code for the paper of [Completely automated CNN architecture design based on blocks](https://ieeexplore.ieee.org/document/8742788).
 
 ## Dependencies
 
@@ -7,6 +7,7 @@ This is the code for the paper of *Completely Automated CNN Architecture Design 
 - torchvision
 - pytorch
 
+## Cite
 ```
 @article{sun2019completely,
   title={Completely automated CNN architecture design based on blocks},
