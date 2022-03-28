@@ -7,6 +7,11 @@ This is the code for the paper of [Completely automated CNN architecture design 
 - torchvision
 - pytorch
 
+## Support datasets
+- CIFAR10
+- CIFAR100
+- Customized dataset
+
 ## Cite
 ```
 @article{sun2019completely,
