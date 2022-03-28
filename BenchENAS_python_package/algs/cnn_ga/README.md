@@ -1,6 +1,6 @@
 # CNN-GA
 
-This is the code for the paper of *Automatically Designing CNN Architectures Using the Genetic Algorithm for Image Classification*.
+This is the code for the paper of [Automatically Designing CNN Architectures Using the Genetic Algorithm for Image Classification](https://arxiv.org/abs/1808.03818).
 
 ## Dependencies
 
@@ -8,6 +8,7 @@ This is the code for the paper of *Automatically Designing CNN Architectures Usi
 - torchvision
 - pytorch
 
+## Cite
 ```
 @article{sun2020automatically,
   title={Automatically designing CNN architectures using the genetic algorithm for image classification},
