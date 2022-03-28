@@ -8,6 +8,13 @@ This is the code for the paper of [Automatically Designing CNN Architectures Usi
 - torchvision
 - pytorch
 
+
+## Support datasets
+- CIFAR10
+- CIFAR100
+- Customized dataset
+
+## Cite
 ```
 @article{sun2020automatically,
   title={Automatically designing CNN architectures using the genetic algorithm for image classification},
