@@ -2,10 +2,14 @@
 This is the code for the paper of [Completely automated CNN architecture design based on blocks](https://ieeexplore.ieee.org/document/8742788).
 
 ## Dependencies
-
 - numpy
 - torchvision
 - pytorch
+
+## Support datasets
+- CIFAR10
+- CIFAR100
+- Customized dataset
 
 ## Cite
 ```
