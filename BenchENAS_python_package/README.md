@@ -1,5 +1,5 @@
 <p align="center">
- <img width="100%" src="attach/logo.PNG"/>
+ <img width="100%" src="https://github.com/benchenas/BenchENAS/blob/master/attach/logo.PNG"/>
 </p>
 
 <p align="center">
