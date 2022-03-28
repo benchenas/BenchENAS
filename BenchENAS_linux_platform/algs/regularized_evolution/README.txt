@@ -1,7 +1,12 @@
-regularized_evolution:
+# regularized_evolution
+This is the code for the paper of [Regularized Evolution for Image Classfier Architecture Search](https://arxiv.org/abs/1802.01548v7).
 
-This is the code for the paper of "Regularized evolution for image classifier architecture search".
+## Support datasets
+- CIFAR10
+- CIFAR100
 
+## Cite
+```
 @inproceedings{real2019regularized,
   title={Regularized evolution for image classifier architecture search},
   author={Real, Esteban and Aggarwal, Alok and Huang, Yanping and Le, Quoc V},
@@ -11,3 +16,4 @@ This is the code for the paper of "Regularized evolution for image classifier ar
   pages={4780--4789},
   year={2019}
 }
+```
