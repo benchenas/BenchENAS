@@ -34,11 +34,11 @@ appears.
 
 #### From python package
 
-Please click [Here](https://github.com/benchenas/BenchENAS/BenchENAS_python_package).
+Please click [Here](https://github.com/benchenas/BenchENAS/tree/master/BenchENAS_python_package).
 
 #### From linux source code 
 
-Please click [Here](https://github.com/benchenas/BenchENAS/BenchENAS_linux_source_code).
+Please click [Here](https://github.com/benchenas/BenchENAS/tree/master/BenchENAS_linux_platform).
 
 ## Algorithms included
 
