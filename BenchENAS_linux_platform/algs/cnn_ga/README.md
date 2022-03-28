@@ -1,6 +1,6 @@
 # CNN-GA
 
-This is the code for the paper of *Automatically Designing CNN Architectures Using the Genetic Algorithm for Image Classification*.
+This is the code for the paper of [Automatically Designing CNN Architectures Using the Genetic Algorithm for Image Classification](https://arxiv.org/abs/1808.03818).
 
 ## Dependencies
 
