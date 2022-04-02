@@ -37,7 +37,7 @@ jobs:
           pip install -e .[test]
       - name: Run test-suite
         run: |
-          pytest -s
+          pytest 
       - name: Generate coverage report
         if: success()
         run: |
