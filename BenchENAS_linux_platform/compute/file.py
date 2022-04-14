@@ -176,7 +176,7 @@ def init_work_dir_on_all_workers():
 
 def makedirs(ssh_name, ssh_password, ip, dir_path):
     _mk_cmd = 'sshpass -p \'%s\' ssh %s@%s mkdir -p \'%s\'' % (
-        ssh_password, ssh_name, 'cuda2', dir_path)
+        ssh_password, ssh_name, ip, dir_path)
     Log.debug('Execute the cmd: %s' % (_mk_cmd))
     _, stderr_ = exec_cmd_remote(_mk_cmd)
     if stderr_ is not None:
