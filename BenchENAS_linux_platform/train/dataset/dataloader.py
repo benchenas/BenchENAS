@@ -16,7 +16,7 @@ class BaseDataloader(object):
         self.shuffle = True  # shuffle the dataset
         self.random_seed = 2312390  # the random seed
         self.show_sample = False  # display the samples
-        self.num_workers = 1  # number of workers
+        self.num_workers = 0  # number of workers
         self.pin_memory = True
 
         from train.utils import OptimizerConfig
