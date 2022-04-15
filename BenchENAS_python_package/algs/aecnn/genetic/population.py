@@ -243,19 +243,21 @@ class Individual(object):
                     else: # indi_k == 40
                         max_input_channel= StatusUpdateTool.get_densenet_k40()[0]
                     if indi_units[i].in_channel >= max_input_channel:
-                        break
+                        estimated_out_channel = indi_units[i].k * indi_units[i].amount + max_input_channel
                     else:
                         estimated_out_channel = indi_units[i].k * indi_units[i].amount + indi_units[i].in_channel
-                        # generate log
-                        if type == 0:
-                            log.info(
-                                'Due to the above crossover, unit at %d changes its output channel from %d to %d' % (
-                                    i, indi_units[i].out_channel, estimated_out_channel))
-                        else:
-                            log.info(
-                                'Due to the above mutation, unit at %d changes its output channel from %d to %d' % (
-                                    i, indi_units[i].out_channel, estimated_out_channel))
-
+                    # generate log
+                    if type == 0:
+                        log.info(
+                            'Due to the above crossover, unit at %d changes its output channel from %d to %d' % (
+                                i, indi_units[i].out_channel, estimated_out_channel))
+                    else:
+                        log.info(
+                            'Due to the above mutation, unit at %d changes its output channel from %d to %d' % (
+                                i, indi_units[i].out_channel, estimated_out_channel))
+                    if indi_units[i].out_channel == estimated_out_channel:
+                        break
+                    else:
                         indi_units[i].out_channel = estimated_out_channel
                         keep_out_channel = estimated_out_channel
         return indi_units
