@@ -70,7 +70,7 @@ class CIFAR10(BaseDataloader):
                             valid_size=0.2,
                             shuffle=True,
                             show_sample=False,
-                            num_workers=4,
+                            num_workers=0,
                             pin_memory=False):
         """
         Utility function for loading and returning train and valid
@@ -160,7 +160,7 @@ class CIFAR10(BaseDataloader):
                         data_dir,
                         batch_size,
                         shuffle=True,
-                        num_workers=4,
+                        num_workers=0,
                         pin_memory=False):
         """
         Utility function for loading and returning a multi-process
@@ -207,7 +207,7 @@ class CIFAR10(BaseDataloader):
                         data_dir,
                         batch_size,
                         shuffle=True,
-                        num_workers=4,
+                        num_workers=0,
                         pin_memory=False):
         """
         Utility function for loading and returning a multi-process
