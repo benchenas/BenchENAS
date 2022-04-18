@@ -154,7 +154,8 @@ class Utils(object):
         part1, part2, part3, part4, part5 = cls.read_template()
         conv_unit = '        self.conv3x3 = nn.Conv2d(%d, 16, kernel_size=3, stride=1, padding=1)' \
                     % (StatusUpdateTool.get_input_channel())
-        linear_layer = '        self.last_linear = nn.Linear(4096, %d)' % (StatusUpdateTool.get_num_class())
+        linear_layer = '        self.last_linear = nn.Linear(%d, %d)' % \
+                       (64 * math.pow(StatusUpdateTool.get_input_height() / 4, 2), StatusUpdateTool.get_num_class())
         _str = []
         current_time = time.strftime("%Y-%m-%d  %H:%M:%S")
         _str.append('"""')
