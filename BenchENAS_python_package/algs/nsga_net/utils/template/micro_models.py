@@ -335,7 +335,7 @@ class AuxiliaryHeadImageNet(nn.Module):
 
 class Network(nn.Module):
 
-    def __init__(self, C, num_classes, layers, auxiliary, genotype, SE=False):
+    def __init__(self, C_in, C, num_classes, layers, auxiliary, genotype, SE=False):
         super(Network, self).__init__()
         self._layers = layers
         self._auxiliary = auxiliary
@@ -343,7 +343,7 @@ class Network(nn.Module):
         stem_multiplier = 3
         C_curr = stem_multiplier * C
         self.stem = nn.Sequential(
-            nn.Conv2d(3, C_curr, 3, padding=1, bias=False),
+            nn.Conv2d(C_in, C_curr, 3, padding=1, bias=False),
             nn.BatchNorm2d(C_curr)
         )
 
