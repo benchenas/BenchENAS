@@ -161,8 +161,8 @@ class Utils(object):
         part1, part2 = cls.read_template(search_space)
         line1 = "genome = convert(%s)" % (str(list(indi.genome)))
         line2 = "genotype = decode(genome)"
-        line3 = "self.net = Network(%d, %d, %d, False, genotype)" % \
-                (params['init_channels'], params['classes'], params['layers'])
+        line3 = "self.net = Network(%d, %d, %d, %d, False, genotype)" % \
+                (StatusUpdateTool.get_input_channel(), params['init_channels'], params['classes'], params['layers'])
         _str = []
         current_time = time.strftime("%Y-%m-%d  %H:%M:%S")
         _str.append('"""')
