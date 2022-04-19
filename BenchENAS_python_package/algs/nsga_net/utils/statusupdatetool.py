@@ -73,6 +73,11 @@ class StatusUpdateTool(object):
     def get_input_height(cls):
         rs = TrainConfig.get_data_input_size(Config_ini.dataset)
         return rs[1]
+    
+    @classmethod
+    def get_input_channel(cls):
+        rs = TrainConfig.get_data_input_size(Config_ini.dataset)
+        return rs[2]
 
     @classmethod
     def get_init_channels(cls):
