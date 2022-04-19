@@ -4,6 +4,7 @@ import platform
 import multiprocessing
 from compute.file import get_algo_local_dir
 import time
+import math
 from compute.config import AlgorithmConfig
 import numpy as np
 from algs.hierarchical_representations.genetic.population import Population, Individual
