@@ -1,5 +1,5 @@
 # EvoCNN
-This is the code for the paper of [Completely automated CNN architecture design based on blocks](https://ieeexplore.ieee.org/document/8742788).
+This is the code for the paper of [Evolving deep convolutional neural networks for image classification](https://arxiv.org/abs/1710.10741).
 
 ## Cite
 ```
