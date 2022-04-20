@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
+
 from compute import Config_ini
 from train.dataset.dataloader import BaseDataloader
 
@@ -15,14 +16,7 @@ from train.dataset.dataloader import BaseDataloader
 class FDataLoader(BaseDataloader):
     def __init__(self):
         super(FDataLoader, self).__init__()
-        self.root = self.data_dir
-        i = 1
-        dir_list = Config_ini.data_dir.replace('\\', '/').split('/')
-        while not os.path.exists(self.root):
-            i += 1
-            self.data_dir = os.path.join('~', '/'.join(dir_list[(len(dir_list)-i):]))
-            self.root = os.path.expanduser(self.data_dir)
-        print('self.root: ', self.root)
+        self.root = os.path.expanduser(self.data_dir)
         dir_list = os.listdir(self.root)
         self.train_test = 0
         if 'train' in dir_list and 'test' in dir_list:
@@ -32,7 +26,7 @@ class FDataLoader(BaseDataloader):
         else:
             print('Not excepted dataset')
         self.input_size = self.img_input_size
-        self.out_cls_num = os.listdir(os.path.join(self.root, 'train'))
+        self.out_cls_num = len(os.listdir(os.path.join(self.root, 'train')))
 
     def get_train_dataloader(self):
         if self.train_test == 1:
@@ -96,8 +90,8 @@ class FDataLoader(BaseDataloader):
         return train_loader, test_loader
 
     def __get_train_loader(self, root, batch_size, shuffle, show_sample,
-                           num_workers=1, pin_memory=False):
-        train_dir = os.path.join(root, 'train')
+                           num_workers=0, pin_memory=False):
+        train_dir = os.path.join(self.root, 'train')
         train_set = DataDeal(train_dir, self.input_size)
 
         train_loader = DataLoader(train_set, batch_size=batch_size,
@@ -106,7 +100,7 @@ class FDataLoader(BaseDataloader):
         return train_loader
 
     def __get_test_loader(self, root, batch_size, shuffle, show_sample,
-                          num_workers=1, pin_memory=False):
+                          num_workers=0, pin_memory=False):
         test_dir = os.path.join(self.root, 'test')
         test_set = DataDeal(test_dir, self.input_size)
 
@@ -132,8 +126,8 @@ class DataDeal(Dataset):
         label_names = sorted(item.name for item in data_root.glob('*/') if item.is_dir())
         label_to_index = dict((label, index) for index, label in enumerate(label_names))
         self.all_image_labels = [label_to_index[path.parent.name] for path in all_image_paths]
-        self.weight = input_size[0]
-        self.height = input_size[1]
+        self.weight = int(input_size[0])
+        self.height = int(input_size[1])
         self.mean = np.array(mean).reshape((1, 1, 3))
         self.std = np.array(std).reshape((1, 1, 3))
 

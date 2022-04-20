@@ -113,8 +113,7 @@ class StatusUpdateTool(object):
             return True
         else:
             return False
-    
+
     @classmethod
     def change_lam(cls, val):
-        print(val, ' lam')
         cls.__write_ini_file('settings', 'lam', str(val))

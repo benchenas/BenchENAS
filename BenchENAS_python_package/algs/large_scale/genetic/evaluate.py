@@ -26,13 +26,15 @@ class FitnessEvaluate(object):
         _count = 0
         for dna in self.individuals:
             if dna.fitness > 0:
-                CacheToResultFile.do(dna.individual_id, float(dna.fitness))
+                CacheToResultFile.do(dna.individual_id, float(dna.fitness), Config_ini.log_server, Config_ini.log_server_port)
             else:
                 _uuid = dna.uuid
                 if _uuid in _map:
                     _count += 1
                     _acc = _map[_uuid]
-                    CacheToResultFile.do(dna.individual_id, float(_acc))
+                    self.log.info('Hit the cache for %s, key:%s, acc:%.5f, assigned_acc:%.5f' % (
+                        dna.individual_id, _uuid, float(_acc), dna.fitness))
+                    CacheToResultFile.do(dna.individual_id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                     dna.fitness = float(_acc)
 
         for dna in self.individuals:

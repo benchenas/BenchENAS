@@ -1,12 +1,16 @@
 import os
+import platform
 import time
 import sys
 import importlib
 import glob
 import subprocess
 import selectors
+
+import multiprocess
 import paramiko
 
+from comm.platform import linux_win, run_cmd_list, run_cmd
 from compute import Config_ini
 from compute.log import Log
 
@@ -132,88 +136,103 @@ def exec_cmd_remote(_cmd, need_response=True):
     return stdout_str, stderr_str
 
 
-def detect_file_exit(ssh_name, ssh_password, ip, file_name):
-    _detect_cmd = 'sshpass -p \'%s\' ssh %s@%s ls -a' % (ssh_password, ssh_name, ip)
-    output = os.popen(_detect_cmd)
-    ls_names_str = output.read()
-    ls_names_arr = ls_names_str.split('\n')
-    return True if file_name in ls_names_arr else False
+def detect_file_exit(ssh_name, ssh_pwd, ip, port, file_name):
+    transport = paramiko.Transport((ip, port))
+    transport.connect(username=ssh_name, password=ssh_pwd)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp.chdir('.')
+    try:
+        sftp.stat(file_name)
+        return True
+    except:
+        return False
 
 
-def init_work_dir(ssh_name, ssh_password, ip):
+def init_work_dir(ssh_name, ssh_password, ip, port):
     Log.debug('Start to init the work directory in each worker')
     alg_name = get_algo_name()
-    if detect_file_exit(ssh_name, ssh_password, ip, alg_name):
+    cmd_ = list()
+
+    if detect_file_exit(ssh_name, ssh_password, ip, port, alg_name):
+        system_ver = linux_win(ssh_name, ssh_password, ip, port)
         time_str = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-        _bak_cmd = 'sshpass -p \'%s\' ssh %s@%s mv \'%s\' \'%s_bak_%s\'' % (
-            ssh_password, ssh_name, ip, get_top_dest_dir(), get_top_dest_dir(), time_str)
-        _, stderr_ = exec_cmd_remote(_bak_cmd)
-        Log.debug('Execute the cmd: %s' % (_bak_cmd))
-        if stderr_ is not None:
-            Log.warn(stderr_)
-    _mk_cmd = 'sshpass -p \'%s\' ssh %s@%s mkdir \'%s\'' % (ssh_password, ssh_name, ip, get_top_dest_dir())
-    _, stderr_ = exec_cmd_remote(_mk_cmd)
-    Log.debug('Execute the cmd: %s' % (_mk_cmd))
-    if stderr_ is not None:
-        Log.warn(stderr_)
+        if system_ver == 'linux':
+            _bak_cmd = 'mv \'%s\' \'%s_bak_%s\'' % (alg_name, alg_name, time_str)
+            cmd_.append(_bak_cmd)
+        elif system_ver == 'windows':
+            _bak_cmd = 'ren %s %s_bak_%s' % (alg_name, alg_name, time_str)
+            cmd_.append(_bak_cmd)
+        else:
+            Log.debug('Current system %s is not windows or linux!' % ip)
+
+    _mk_cmd = 'mkdir %s' % alg_name
+    cmd_.append(_mk_cmd)
+    for cmd in cmd_:
+        Log.info('Execute the cmd: %s' % cmd)
+    stderr_ = run_cmd_list(ssh_name, ssh_password, ip, port, cmd_)
+    if stderr_:
+        Log.debug('Stderr: %s' % stderr_)
 
 
 def init_work_dir_on_all_workers():
     Log.info('Init the work directories on each worker')
     gpu_info = Config_ini.gpu_info
-
+    ls_dataset = ['MNIST', 'CIFAR10', 'CIFAR100']
     for sec in gpu_info.keys():
         worker_name = gpu_info[sec]['worker_name']
         worker_ip = gpu_info[sec]['worker_ip']
         ssh_name = gpu_info[sec]['ssh_name']
         ssh_password = gpu_info[sec]['ssh_password']
-        init_work_dir(ssh_name, ssh_password, worker_ip)
-        transfer_training_files(ssh_name, ssh_password, worker_ip)
+        port = gpu_info[sec]['port']
+        init_work_dir(ssh_name, ssh_password, worker_ip, port)
+        transfer_training_files(ssh_name, ssh_password, worker_ip, port)
+        if Config_ini.dataset not in ls_dataset:
+            transfer_dataset_image(ssh_name, ssh_password, worker_ip, port, Config_ini.data_dir)
 
 
-def makedirs(ssh_name, ssh_password, ip, dir_path):
-    _mk_cmd = 'sshpass -p \'%s\' ssh %s@%s mkdir -p \'%s\'' % (
-        ssh_password, ssh_name, 'cuda2', dir_path)
-    Log.debug('Execute the cmd: %s' % (_mk_cmd))
-    _, stderr_ = exec_cmd_remote(_mk_cmd)
-    if stderr_ is not None:
-        Log.warn(stderr_)
+def makedirs(sftp, dir_path):
+    Log.info('Execute the operation: mkdir %s' % dir_path)
+    try:
+        sftp.stat(dir_path)
+    except:
+        sftp.mkdir(dir_path)
 
 
-def exec_python(ssh_name, ssh_password, ip, py_file, args, python_exec):
+def exec_python(ssh_name, ssh_pwd, ip, port, py_file, args, python_exec):
     top_dir = get_top_dest_dir()
-    py_file = os.path.join(top_dir, py_file).replace('~', '/home/' + ssh_name)
+    py_file = os.path.join(top_dir, py_file).replace('~', '.').replace('\\', '/')
     # compute.log输出
     Log.info('Execute the remote python file [(%s)%s]' % (ip, py_file))
-    _exec_cmd = 'sshpass -p \'%s\' ssh %s@%s %s  \'%s\' %s' % (ssh_password, ssh_name, ip, python_exec, py_file,
-                                                               ' '.join([' '.join([k, v]) for k, v in
-                                                                         args.items()]))
-    Log.debug('Execute the cmd: %s' % (_exec_cmd))
-    _stdout, _stderr = exec_cmd_remote(_exec_cmd,
-                                       need_response=False)
-
-    # if _stderr:
-    #     Log.debug(_stderr)
-    # elif _stdout:
-    #     Log.debug(_stdout)
-    # else:
-    #     Log.debug('No stderr nor stdout, seems the script has been successfully performed')
+    _exec_cmd = '%s %s %s' % (python_exec, py_file,
+                              ' '.join([' '.join([k, v]) for k, v in
+                                        args.items()]))
+    Log.info('Execute the cmd: %s' % _exec_cmd)
+    p = multiprocess.Process(target=run_cmd, args=(ssh_name, ssh_pwd, ip, port, _exec_cmd))
+    p.start()
 
 
-def transfer_file_relative(ssh_name, ssh_password, ip, source, dest):
+def transfer_file_relative(ssh_name, ssh_pwd, ip, port, source, dest):
     """Use relative path to transfer file, both source and dest are relative path
     """
 
     top_dir = get_top_dest_dir()
-    full_path_dest = os.path.join(top_dir, dest)
-    full_path_source = os.path.join(get_local_path(), source)
+    full_path_dest = os.path.join(top_dir, dest).replace('~', '.')
+    full_path_dest = full_path_dest.replace('\\', '/')
+    full_path_source = os.path.join(get_local_path(), source).replace('\\', '/')
+    transport = paramiko.Transport((ip, port))
+    transport.connect(username=ssh_name, password=ssh_pwd)
+    sftp = paramiko.SFTPClient.from_transport(transport)
     # full_path_source = full_path_source.replace(' ','\\\\ ')
-    makedirs(ssh_name, ssh_password, ip, os.path.dirname(full_path_dest))
-    _cmd = 'sshpass -p \'%s\' scp \'%s\' \'%s@%s:%s\'' % (
-        ssh_password, full_path_source, ssh_name, 'cuda2', full_path_dest)
-    # Log.debug('Execute cmd: %s'%(_cmd))
-    # Log.info(_cmd)
-    subprocess.Popen(_cmd, stdout=subprocess.PIPE, shell=True).stdout.read().decode()
+    makedirs(sftp, os.path.dirname(full_path_dest))
+    try:
+        Log.info('Execute the operation: put %s to %s' % (full_path_source, full_path_dest))
+        sftp.put(full_path_source, full_path_dest)
+        Log.info('Transfer file successfully...')
+    except Exception as e:
+        Log.info('Transfer file failed....')
+        Log.debug(e)
+
+    sftp.close()
 
 
 def sftp_makedirs(sftp_sess, dir_path):
@@ -239,12 +258,14 @@ def sftp_transfer(sftp_sess, src_path, dst_path):
     sftp_sess.put(src_path, dst_path)
 
 
-def transfer_training_files(ssh_name, ssh_password, worker_ip):
+def transfer_training_files(ssh_name, ssh_password, worker_ip, port):
     training_file_dep = [(v, v) for _, v in get_training_file_dependences().items()]
-    transport = paramiko.Transport((worker_ip, 22))
+    transport = paramiko.Transport((worker_ip, port))
     transport.connect(username=ssh_name, password=ssh_password)
     sftp = paramiko.SFTPClient.from_transport(transport)
-    sftp.chdir('/')
+    sftp.chdir('.')
+    root_dir = sftp.getcwd()
+
     sub_file = os.path.dirname(os.path.dirname(__file__))
     sub_file = os.path.join(sub_file, 'runtime/README.MD').replace('\\', '/')
     training_file_dep = training_file_dep + [(sub_file, 'runtime/README.MD')]
@@ -252,12 +273,55 @@ def transfer_training_files(ssh_name, ssh_password, worker_ip):
     top_dir = get_top_dest_dir()
     for src, dst in training_file_dep:
         full_path_source = os.path.join(get_transfer_local_path(), src)
-        full_path_dest = os.path.join(top_dir, dst).replace('~', '/home/' + ssh_name)
+        full_path_dest = os.path.join(top_dir, dst).replace('~', root_dir).replace('\\', '/')
 
         if full_path_dest.endswith('training.py'):
-            full_path_dest = os.path.join(os.path.dirname(os.path.dirname(full_path_dest)), 'training.py')
+            full_path_dest = os.path.join(os.path.dirname(os.path.dirname(full_path_dest)), 'training.py').replace('\\',
+                                                                                                                   '/')
         Log.debug('Start to sftp: `%s` ==> `%s`' % (full_path_source, full_path_dest))
         sftp_transfer(sftp, full_path_source, full_path_dest)
+
+    transport.close()
+
+
+def transfer_dataset_image(ssh_name, ssh_password, worker_ip, port, source):
+    transport = paramiko.Transport((worker_ip, port))
+    transport.connect(username=ssh_name, password=ssh_password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp.chdir('.')
+    root_dir = sftp.getcwd()
+    source = source.replace('\\', '/')
+    dset_name = source.split('/')[-1]
+    try:
+        sftp.stat(dset_name)
+    except:
+        sftp.mkdir(dset_name)
+
+    for root, subdir, files in os.walk(source):
+        for dir in subdir:
+            r_d = source.split("/")
+            local_subdir = os.path.join(root, dir).replace('\\', '/')
+            l_d = local_subdir.split("/")
+            r_m = l_d[len(r_d):]
+            r_m = "/".join(r_m)
+            remote_subdir = os.path.join(dset_name, r_m).replace('\\', '/')
+            try:
+                sftp.stat(remote_subdir)
+            except:
+                sftp.mkdir(remote_subdir)
+        for file in files:
+            local_dir_path = os.path.join(root, file).replace('\\', '/')
+            l_d_p = local_dir_path.split("/")
+            r_d_p = l_d_p[len(r_d):]
+            r_d_p = "/".join(r_d_p)
+            remote_dir_path = os.path.join(dset_name, r_d_p).replace('\\', '/')
+            Log.info('Start to sftp dataset: `%s` ==> `%s`' %
+                     (local_dir_path,
+                      os.path.join(root_dir, remote_dir_path).replace('\\', '/')))
+            try:
+                sftp.stat(remote_dir_path)
+            except:
+                sftp.put(local_dir_path, remote_dir_path)
 
     transport.close()
 
@@ -271,16 +335,27 @@ def get_dependences_by_module_name(module_name):
 
 
 def get_training_file_dependences():
-    f_list = list(filter(lambda x: not x.startswith(os.path.join(get_transfer_local_path(), 'runtime')),
+    f_list = list(filter(lambda x: not x.startswith(os.path.join(get_transfer_local_path(), 'runtime')) and
+                                   not x.startswith(os.path.join(get_transfer_local_path(), 'venv')) and
+                                   not x.startswith(os.path.join(get_transfer_local_path(), '__pycache__')),
                          glob.iglob(os.path.join(get_transfer_local_path(), '**/*.py'),
                                     recursive=True))) + \
-             list(filter(lambda x: not x.startswith(os.path.join(get_transfer_local_path(), 'runtime')),
+             list(filter(lambda x: not x.startswith(os.path.join(get_transfer_local_path(), 'runtime')) and
+                                   not x.startswith(os.path.join(get_transfer_local_path(), '__pycache__')),
                          glob.iglob(os.path.join(get_transfer_local_path(), '**/*.ini'),
                                     recursive=True)))
 
-    res = {
-        _.replace(get_transfer_local_path() + '/', '').replace('/', '.'): _.replace(get_transfer_local_path() + '/', '')
-        for _ in f_list}
+    if platform.system() == 'Windows':
+        res = {
+            _.replace(get_transfer_local_path() + '\\', ''):
+                _.replace(get_transfer_local_path() + '\\', '')
+            for _ in f_list}
+    else:
+        res = {
+            _.replace(get_transfer_local_path() + '/', ''):
+                _.replace(get_transfer_local_path() + '/', '')
+            for _ in f_list}
+
     return res
 
 

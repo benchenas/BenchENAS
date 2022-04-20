@@ -1,7 +1,13 @@
 # EvoCNN
-This is the code for the paper of [Evolving deep convolutional neural networks for image classification](https://arxiv.org/abs/1710.10741).
 
-## Cite
+This is the code for the paper of *Evolving deep convolutional neural networks for image classification*.
+
+## Dependencies
+
+- numpy
+- torchvision
+- pytorch
+
 ```
 @article{sun2019evolving,
   title={Evolving deep convolutional neural networks for image classification},
@@ -14,3 +20,4 @@ This is the code for the paper of [Evolving deep convolutional neural networks f
   publisher={IEEE}
 }
 ```
+

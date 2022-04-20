@@ -5,6 +5,7 @@ from compute import Config_ini
 from compute.process import dispatch_to_do
 from compute.gpu import gpus_all_available
 
+
 class FitnessEvaluate(object):
 
     def __init__(self, individuals, log):
@@ -29,21 +30,22 @@ class FitnessEvaluate(object):
             if _key in _map:
                 _count += 1
                 _acc = _map[_key]
-                self.log.info('Hit the cache for %s, key:%s, acc:%.5f, assigned_acc:%.5f'%(indi.id, _key, _acc, indi.acc))
-                CacheToResultFile.do(indi.id, _acc)
+                self.log.info(
+                    'Hit the cache for %s, key:%s, acc:%.5f, assigned_acc:%.5f' % (indi.id, _key, _acc, indi.acc))
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                 indi.acc = _acc
-        self.log.info('Total hit %d individuals for fitness'%(_count))
+        self.log.info('Total hit %d individuals for fitness' % _count)
 
         for indi in self.individuals:
             if indi.acc < 0:
                 _id = indi.id
                 _uuid, _ = indi.uuid()
                 dispatch_to_do(_id, _uuid)
-                
+
         all_have_been_evaluated = False
         while all_have_been_evaluated is not True:
-            #print('All have been evaluated flag ', all_have_been_evaluated)
+            # print('All have been evaluated flag ', all_have_been_evaluated)
             time.sleep(60)
             all_have_been_evaluated = gpus_all_available()
-        
-        # set the fitness values to each of individual  
+
+        # set the fitness values to each of individual

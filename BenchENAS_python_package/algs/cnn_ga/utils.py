@@ -22,10 +22,7 @@ class Utils(object):
 
     @classmethod
     def path_replace(cls, input_str):
-        if (platform.system() == 'Windows'):
-            new_str = input_str.replace('\\', '/')
-        else:  # Linux or Mac
-            new_str = input_str
+        new_str = input_str.replace('\\', '/')
         return new_str
 
     @classmethod

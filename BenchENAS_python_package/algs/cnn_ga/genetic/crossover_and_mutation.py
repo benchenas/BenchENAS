@@ -12,6 +12,7 @@ for each operation
                 ---add conv/pool    | use bits to denote the units, then do bit-wise flip to determine where to add
                 ---remove conv/pool | the same to the above
 """
+import math
 import random
 import numpy as np
 import copy
@@ -40,7 +41,7 @@ class CrossoverAndMutation(object):
         mutation.do_mutation()
 
         for i, indi in enumerate(self.offspring):
-            indi_no = 'indi%05d%05d' % (self.params['gen_no'], i)
+            indi_no = 'indi%05d_%05d' % (self.params['gen_no'], i)
             indi.id = indi_no
 
         Utils.save_population_after_mutation(self.individuals_to_string(), self.params['gen_no'])
@@ -126,7 +127,7 @@ class Crossover(object):
     def do_crossover(self):
         _stat_param = {'offspring_new': 0, 'offspring_from_parent': 0}
         new_offspring_list = []
-        for _ in range(len(self.individuals) // 2):
+        for _ in range(math.ceil(len(self.individuals) / 2.0)):
             ind1, ind2 = self._choose_two_diff_parents()
             parent1, parent2 = copy.deepcopy(self.individuals[ind1]), copy.deepcopy(self.individuals[ind2])
             p_ = random.random()

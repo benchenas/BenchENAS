@@ -1,4 +1,5 @@
 import configparser
+import math
 import os
 import platform
 import multiprocessing
@@ -7,7 +8,6 @@ from comm.log import Log
 from compute import Config_ini
 from compute.file import get_algo_local_dir, get_local_path
 import time
-import math
 
 import numpy as np
 from algs.hierarchical_representations.genetic.population import Population, Individual

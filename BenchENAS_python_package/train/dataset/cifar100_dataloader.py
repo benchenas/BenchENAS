@@ -70,7 +70,7 @@ class CIFAR100(BaseDataloader):
                                  pin_memory=False):
         """
         Utility function for loading and returning train and valid
-        multi-process iterators over the CIFAR-10 dataset. A sample
+        multi-process iterators over the CIFAR-100 dataset. A sample
         9x9 grid of the images can be optionally displayed.
         If using CUDA, num_workers should be set to 1 and pin_memory to True.
         Params
@@ -160,7 +160,7 @@ class CIFAR100(BaseDataloader):
                            pin_memory=False):
         """
         Utility function for loading and returning a multi-process
-        main iterator over the CIFAR-10 dataset.
+        main iterator over the CIFAR-100 dataset.
         If using CUDA, num_workers should be set to 1 and pin_memory to True.
         Params
         ------
@@ -207,7 +207,7 @@ class CIFAR100(BaseDataloader):
                           pin_memory=False):
         """
         Utility function for loading and returning a multi-process
-        main iterator over the CIFAR-10 dataset.
+        main iterator over the CIFAR-100 dataset.
         If using CUDA, num_workers should be set to 1 and pin_memory to True.
         Params
         ------
@@ -243,3 +243,33 @@ class CIFAR100(BaseDataloader):
         )
 
         return data_loader
+
+    def __load_dataset(self):
+        root = os.path.expanduser('~/dataset/cifar100/')
+        normalize = transforms.Normalize(
+            mean=[0.4914, 0.4822, 0.4465],
+            std=[0.2023, 0.1994, 0.2010],
+        )
+
+        # define transform
+        test_transform = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        train_transform = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        dataset_train = datasets.CIFAR100(
+            root=root, train=True,
+            download=True, transform=train_transform,
+        )
+
+        dataset_test = datasets.CIFAR100(
+            root=root, train=False,
+            download=True, transform=test_transform,
+        )

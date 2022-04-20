@@ -39,7 +39,10 @@ class EvolveCNN(object):
         fitness_map = GPUFitness.read()
         for indi in self.pops.individuals:
             if indi.acc_mean == -1:
-                indi.acc_mean = fitness_map[indi.id]
+                if indi.id in fitness_map:
+                    indi.acc_mean = fitness_map[indi.id]
+                else:
+                    indi.acc_mean = 0.
 
     def crossover_and_mutation(self):
         params = {}
@@ -110,13 +113,13 @@ class EvolveCNN(object):
 
     def do_work(self, max_gen):
         self.create_necessary_folders()
-
+        Log.info('*' * 25)
         # the step 1
         if StatusUpdateTool.is_evolution_running():
             Log.info('Initialize from existing population data')
             gen_no = Utils.get_newest_file_based_on_prefix('begin')
             if gen_no is not None:
-                Log.info('Initialize from %d-th generation' % (gen_no))
+                Log.info('Initialize from %d-th generation' % gen_no)
                 pops = Utils.load_population('begin', gen_no)
                 self.pops = pops
             else:

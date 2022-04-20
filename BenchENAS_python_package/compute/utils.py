@@ -30,3 +30,5 @@ class CacheUtils(object):
         _str = '%s;%.5f\n' % (uuid, _acc)
         f.write(_str)
         f.close()
+
+

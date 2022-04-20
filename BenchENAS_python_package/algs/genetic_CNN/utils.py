@@ -20,10 +20,7 @@ class Utils(object):
     def path_replace(cls, input_str):
         # input a str, replace '\\' with '/', because the os.path in windows return path with '\\' joining
         # please use it after creating a string with both os.path and string '/'
-        if (platform.system() == 'Windows'):
-            new_str = input_str.replace('\\', '/')
-        else:  # Linux or Mac
-            new_str = input_str
+        new_str = input_str.replace('\\', '/')
         return new_str
 
     @classmethod
@@ -60,6 +57,13 @@ class Utils(object):
     def save_population_at_begin(cls, _str, gen_no):
         file_name = '%s/begin_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
         # solve the path differences caused by different platforms
+        file_name = cls.path_replace(file_name)
+        with open(file_name, 'w') as f:
+            f.write(_str)
+
+    @classmethod
+    def save_population_after_crossover(cls, _str, gen_no):
+        file_name = '%s/crossover_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
         file_name = cls.path_replace(file_name)
         with open(file_name, 'w') as f:
             f.write(_str)
@@ -218,15 +222,15 @@ class Utils(object):
         _str.append(current_time)
         _str.append('"""')
         _str.extend(part1)
-        _str.append('\n        %s' % ('#conv unit'))
+        _str.append('\n        %s' % '#conv unit')
         for s in layer_list:
-            _str.append('        %s' % (s))
-        _str.append('\n        %s' % ('#linear unit'))
-        _str.append('        %s' % (fully_layer_name))
+            _str.append('        %s' % s)
+        _str.append('\n        %s' % '#linear unit')
+        _str.append('        %s' % fully_layer_name)
 
         _str.extend(part2)
         for s in forward_list:
-            _str.append('        %s' % (s))
+            _str.append('        %s' % s)
         _str.extend(part3)
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), net.id)

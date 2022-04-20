@@ -34,11 +34,13 @@ class FitnessEvaluate(object):
                 _count += 1
                 _acc = _map[_key]
                 self.log.info('Hit the cache for %s, key:%s, acc:%.5f, assigned_acc:%.5f' % (
-                indi.id, _key, float(_acc), indi.acc))
-                CacheToResultFile.do(indi.id, float(_acc))
+                    indi.id, _key, float(_acc), indi.acc))
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                 indi.acc = float(_acc)
 
-        self.log.info('Total hit %d individuals for fitness' % (_count))
+        self.log.info('Total hit %d individuals for fitness' % _count)
+
+
 
         for indi in self.individuals:
             if indi.acc < 0:

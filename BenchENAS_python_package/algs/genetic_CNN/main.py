@@ -54,9 +54,12 @@ class EvolveCNN(object):
             if indi.acc == -1:
                 if indi.id in fitness_map:
                     indi.acc = fitness_map[indi.id]
+                else:
+                    indi.acc = 0.
 
     def crossover_and_mutation(self):
         after_cross = Crossover(self.pops.individuals, self.params['crossover_prob'], Log).crossover()
+        Utils.save_population_after_crossover(str(after_cross), self.pops.gen_no)
         cm = Mutation(after_cross, self.params['mutation_prob'], Log)
         offspring = cm.do_mutation()
         self.parent_pops = copy.deepcopy(self.pops)
@@ -114,8 +117,8 @@ class EvolveCNN(object):
                 os.mkdir(each_sub_folder)
 
     def do_work(self, max_gen):
-        Log.info('*' * 25)
         self.create_necessary_folders()
+        Log.info('*' * 25)
         # the step 1
         if StatusUpdateTool.is_evolution_running():
             Log.info('Initialize from existing population data')
@@ -130,21 +133,21 @@ class EvolveCNN(object):
             gen_no = 0
             Log.info('Initialize...')
             self.initialize_population()
-        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % (gen_no))
+        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % gen_no)
         self.fitness_evaluate()
-        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (gen_no))
+        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % gen_no)
 
         for curr_gen in range(gen_no, max_gen):
             self.params['gen_no'] = curr_gen
             self.pops.gen_no = curr_gen
             # step 3
-            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % (self.pops.gen_no))
+            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % self.pops.gen_no)
             self.crossover_and_mutation()
-            Log.info('EVOLVE[%d-gen]-Finish crossover and mutation' % (self.pops.gen_no))
+            Log.info('EVOLVE[%d-gen]-Finish crossover and mutation' % self.pops.gen_no)
 
-            Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % (self.pops.gen_no))
+            Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % self.pops.gen_no)
             self.fitness_evaluate()
-            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (self.pops.gen_no))
+            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % self.pops.gen_no)
 
             self.environment_selection()
             Log.info('EVOLVE[%d-gen]-Finish the environment selection' % (

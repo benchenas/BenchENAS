@@ -22,9 +22,7 @@ def get_logger(logger_name, log_file, level=logging.INFO):
 class RedisLog(object):
     MSG_TYPE = ['LOG', 'WRITE_FILE']
 
-    def __init__(self, name):
-        db_ip = Config_ini.log_server
-        db_port = Config_ini.log_server_port
+    def __init__(self, name, db_ip, db_port):
         pool = redis.ConnectionPool(host=db_ip, port=int(db_port), socket_connect_timeout=1)
         r = redis.Redis(connection_pool=pool, db=1)
 
@@ -33,7 +31,7 @@ class RedisLog(object):
             r.ping()
         except Exception as e:
             connection_flag = False
-            Log.warn('Connect redis error, please exit manually,ip:%s  db_port:%s errors:%s' % (db_ip, db_port, str(e)))
+            Log.info('Connect redis error, please exit manually,ip:%s  db_port:%s errors:%s' % (db_ip, db_port, str(e)))
             sys.exit()
         if connection_flag:
             Log.info('Connect redis successfully...')
@@ -64,18 +62,22 @@ class RedisLog(object):
     @staticmethod
     def run_dispatch_service():
         Log.info('Start to read message from Redis')
+        db_ip = Config_ini.log_server
+        db_port = Config_ini.log_server_port
+        alg_local_dir = get_algo_local_dir()
+        population_dir = get_population_dir()
 
         def proc_func():
-            rdb = RedisLog('')
+            rdb = RedisLog('', db_ip, db_port)
             log_dict = {}
-            log_dir = os.path.join(get_algo_local_dir(), 'log')
+            log_dir = os.path.join(alg_local_dir, 'log')
             if not os.path.exists(log_dir):
                 os.makedirs(log_dir)
             while True:
                 data = rdb._readdb()
                 if data is not None:
                     name, dtype, content = data['name'], data['type'], data['content']
-                    Log.debug('Redis is reading: name:%s, type:%s, content:%s' % (name, dtype, content))
+                    Log.info('Redis is reading: name:%s, type:%s, content:%s' % (name, dtype, content))
                     if dtype == 'LOG':
                         # create logger.
                         if name not in log_dict:
@@ -91,7 +93,7 @@ class RedisLog(object):
                         fdir, fname, fdata = content['fdir'], content['fname'], content['data']
 
                         if fdir == 'CACHE' or fdir == 'RESULTS':
-                            fdir = get_population_dir()
+                            fdir = population_dir
 
                         if not os.path.exists(fdir):
                             os.makedirs(fdir)

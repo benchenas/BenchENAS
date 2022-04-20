@@ -4,6 +4,7 @@ import sys
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(os.path.split(rootPath)[0])
+
 from algs.cnn_ga.utils import Utils
 from algs.cnn_ga.genetic.statusupdatetool import StatusUpdateTool
 from compute import Config_ini
@@ -37,7 +38,10 @@ class EvolveCNN(object):
         fitness_map = GPUFitness.read()
         for indi in self.pops.individuals:
             if indi.acc == -1:
-                indi.acc = fitness_map[indi.id]
+                if indi.id in fitness_map:
+                    indi.acc = fitness_map[indi.id]
+                else:
+                    indi.acc = 0.
 
     def crossover_and_mutation(self):
         cm = CrossoverAndMutation(self.params['genetic_prob'][0], self.params['genetic_prob'][1], Log,
@@ -101,7 +105,7 @@ class EvolveCNN(object):
             Log.info('Initialize from existing population data')
             gen_no = Utils.get_newest_file_based_on_prefix('begin')
             if gen_no is not None:
-                Log.info('Initialize from %d-th generation' % (gen_no))
+                Log.info('Initialize from %d-th generation' % gen_no)
                 pops = Utils.load_population('begin', gen_no)
                 self.pops = pops
             else:
@@ -140,7 +144,6 @@ class Run(object):
     def do(self):
         from algs.cnn_ga.genetic.statusupdatetool import StatusUpdateTool
         from algs.cnn_ga.utils import Utils
-        StatusUpdateTool.end_evolution()
         params = StatusUpdateTool.get_init_params()
         evoCNN = EvolveCNN(params)
         evoCNN.do_work(params['max_gen'])

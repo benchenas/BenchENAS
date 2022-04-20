@@ -1,10 +1,11 @@
 import importlib
+import os
+import sys
 
 import numpy as np
 import torch
 
-import os
-import sys
+
 from comm.log import Log
 from compute import Config_ini
 
@@ -24,7 +25,7 @@ def test_alg_script():
             'large_scale']
     batch_size = 16
     shuffle = True
-    
+
     os.chdir(sys.path[0])
     for alg in algs:
         config_param(alg)
@@ -59,9 +60,8 @@ def test_cgp_script():
     config_param('cgp_cnn')
     batch_size = 16
     shuffle = True
-    
-    os.chdir(sys.path[0])
 
+    os.chdir(sys.path[0])
     from algs.cgp_cnn.cgp_config import CgpInfoConvSet
     from algs.cgp_cnn.genetic.statusupdatetool import StatusUpdateTool
     from algs.cgp_cnn.genetic.population import Population
@@ -97,9 +97,8 @@ def test_nsga_script():
     search_spaces = ['micro', 'macro']
     batch_size = 16
     shuffle = True
-    
-    os.chdir(sys.path[0])
 
+    os.chdir(sys.path[0])
     from algs.nsga_net.genetic.population import Population
     from algs.nsga_net.utils.statusupdatetool import StatusUpdateTool
     from algs.nsga_net.genetic.evaluate import FitnessEvaluate
@@ -138,9 +137,8 @@ def test_regularized_evo_script():
     config_param('regularized_evolution')
     batch_size = 16
     shuffle = True
-    
-    os.chdir(sys.path[0])
 
+    os.chdir(sys.path[0])
     from algs.regularized_evolution.genetic.statusupdatetool import StatusUpdateTool
     from algs.regularized_evolution.genetic.population import Population
     from algs.regularized_evolution.genetic.evaluate import FitnessEvaluate

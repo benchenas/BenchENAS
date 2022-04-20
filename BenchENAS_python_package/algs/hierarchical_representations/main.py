@@ -5,8 +5,6 @@ curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(os.path.split(rootPath)[0])
 
-from scipy.stats import bernoulli
-from algs.hierarchical_representations.genetic.dag import DAG, DAGValidationError
 from algs.hierarchical_representations.utils import Utils
 from algs.hierarchical_representations.genetic.statusupdatetool import StatusUpdateTool
 from comm.log import Log
@@ -41,7 +39,10 @@ class EvolveCNN(object):
         fitness_map = GPUFitness.read()
         for indi in self.pops.individuals:
             if indi.acc == -1:
-                indi.acc = fitness_map[indi.id]
+                if indi.id in fitness_map:
+                    indi.acc = fitness_map[indi.id]
+                else:
+                    indi.acc = 0.
 
     def mutation(self):
         cm = Mutation(self.pops.individuals, 0.5, Log)
@@ -104,8 +105,8 @@ class EvolveCNN(object):
                 os.mkdir(each_sub_folder)
 
     def do_work(self, max_gen):
-        Log.info('*' * 25)
         self.create_necessary_folders()
+        Log.info('*' * 25)
         # the step 1
         if StatusUpdateTool.is_evolution_running():
             Log.info('Initialize from existing population data')

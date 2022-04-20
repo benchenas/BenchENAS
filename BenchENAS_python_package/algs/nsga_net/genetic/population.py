@@ -30,9 +30,9 @@ class Individual(object):
 
     def __str__(self):
         _str = []
-        _str.append('indi:%s' % (self.id))
-        _str.append('Acc:%.5f' % (self.acc))
-        _str.append('flop:%.5f' % (self.flop))
+        _str.append('indi:%s' % self.id)
+        _str.append('Acc:%.5f' % self.acc)
+        _str.append('flop:%.5f' % self.flop)
         _str.append('genome:' + str(self.genome))
         return '\n'.join(_str)
 

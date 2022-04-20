@@ -43,8 +43,11 @@ class EvolveCNN(object):
         fitness.evaluate()
         fitness_map = GPUFitness.read()
         for dna in self.pops.individuals:
-            if dna.fitness == -1 and dna.individual_id in fitness_map:
-                dna.fitness = fitness_map[dna.individual_id]
+            if dna.fitness == -1:
+                if dna.individual_id in fitness_map:
+                    dna.fitness = fitness_map[dna.individual_id]
+                else:
+                    dna.fitness = 0.
 
     def mutate(self):
         mut = StructMutation()
@@ -57,6 +60,7 @@ class EvolveCNN(object):
             mut.mutate(mutated_dna)
             mutated_pops.append(mutated_dna)
         self.pops.create_from_offspring(mutated_pops)
+        Utils.save_population_after_mutation(str(self.pops), self.pops.gen_no)
 
     def environment_selection(self):
         random.shuffle(self.pops.individuals)
@@ -71,7 +75,9 @@ class EvolveCNN(object):
                     better_dna.append(self.pops.individuals[i + 1])
                     worse_dna.append(self.pops.individuals[i])
         del worse_dna
-        self.pops.create_from_offspring(better_dna)
+        next_gen_pops = Population(self.pops.params, self.pops.gen_no + 1)
+        next_gen_pops.create_from_offspring(better_dna)
+        self.pops = next_gen_pops
         Utils.save_population_at_begin(str(self.pops), self.pops.gen_no)
 
     def do_work(self, max_gen):

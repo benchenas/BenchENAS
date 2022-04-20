@@ -1,7 +1,6 @@
 import time
 
 from compute import Config_ini
-from compute.log import Log
 from compute.gpu import locate_gpu_to_be_used
 from compute.file import transfer_file_relative, exec_python, get_algo_local_dir
 from compute.pid_manager import PIDRedis, PIDManager
@@ -20,19 +19,22 @@ def dispatch_to_do(_id, _uuid):
                                                     gpu_info['ssh_name'], \
                                                     gpu_info['ssh_password']
         worker_name = Config_ini.gpu_info[worker_ip]['worker_name']
+        port = Config_ini.gpu_info[worker_ip]['port']
+        exe_path = Config_ini.gpu_info[worker_ip]['exe_path']
 
         # NOTE: commom files shall be uploaded when initialization instead of here
         indi_file_name = '%s.py' % (_id)
+
 
         sync_file_list = [
             ('%s/scripts/%s' % (get_algo_local_dir(), indi_file_name), indi_file_name)
         ]
 
         for src, dst in sync_file_list:
-            transfer_file_relative(ssh_name, ssh_password, worker_ip, src, dst)
-        Log.info('Transfer file successfully...')
+            transfer_file_relative(ssh_name, ssh_password, worker_ip, port, src, dst)
+
         # 2. execuate the file
-        exec_python(ssh_name, ssh_password, worker_name, 'training.py',
+        exec_python(ssh_name, ssh_password, worker_ip, port, 'training.py',
                     args={
                         '-gpu_id': str(gpu_id),
                         '-file_id': _id,
@@ -42,7 +44,7 @@ def dispatch_to_do(_id, _uuid):
                         '-super_node_pid': str(PIDManager._pid),
                         '-worker_node_ip': worker_ip,
                         '-train_dataset': Config_ini.dataset,
-                        '-train_data_dir': Config_ini.data_dir,
+                        '-train_data_dir': Config_ini.data_dir.replace('\\', '/'),
                         '-data_input_size': ','.join([str(Config_ini.img_input_size[i])
                                                       for i in range(len(Config_ini.img_input_size))]),
                         '-train_optimizer': Config_ini.optimizer,
@@ -50,5 +52,5 @@ def dispatch_to_do(_id, _uuid):
                         '-train_batch_size': str(Config_ini.batch_size),
                         '-train_total_epoch': str(Config_ini.total_epoch),
                         '-train_lr_strategy': Config_ini.lr_strategy
-                    }, python_exec=Config_ini.exe_path
+                    }, python_exec=exe_path
                     )

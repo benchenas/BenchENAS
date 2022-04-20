@@ -154,13 +154,13 @@ class Individual(object):
         if _amount:
             amount = _amount
         else:
-            amount_upper_limit = getattr(self, 'max_k%d' % (k))
-            amount_lower_limit = getattr(self, 'min_k%d' % (k))
+            amount_upper_limit = getattr(self, 'max_k%d' % k)
+            amount_lower_limit = getattr(self, 'min_k%d' % k)
             amount = np.random.randint(amount_lower_limit, amount_upper_limit + 1)
         if _max_input_channel:
             max_input_channel = _max_input_channel
         else:
-            max_input_channel = getattr(self, 'max_k%d_input_channel' % (k))
+            max_input_channel = getattr(self, 'max_k%d_input_channel' % k)
 
         true_input = _in_channel
         if true_input > max_input_channel:
@@ -240,8 +240,8 @@ class Individual(object):
                         max_input_channel = StatusUpdateTool.get_densenet_k12()[0]
                     elif indi_k == 20:
                         max_input_channel = StatusUpdateTool.get_densenet_k20()[0]
-                    else: # indi_k == 40
-                        max_input_channel= StatusUpdateTool.get_densenet_k40()[0]
+                    else:  # indi_k == 40
+                        max_input_channel = StatusUpdateTool.get_densenet_k40()[0]
                     if indi_units[i].in_channel >= max_input_channel:
                         estimated_out_channel = indi_units[i].k * indi_units[i].amount + max_input_channel
                     else:

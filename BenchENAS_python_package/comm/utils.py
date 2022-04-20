@@ -16,7 +16,7 @@ class PlatENASConfig(object):
         return config.get(self.section, key)
 
 
-class GPUFitness():
+class GPUFitness(object):
     @classmethod
     def read(cls):
         file_name = '%s/populations/results.txt' % (get_algo_local_dir())
@@ -33,10 +33,10 @@ class GPUFitness():
         return fitness_map
 
 
-class CacheToResultFile():
+class CacheToResultFile(object):
     @classmethod
-    def do(cls, file_id, best_acc):
-        logger = RedisLog(os.path.basename(file_id) + '.txt')
+    def do(cls, file_id, best_acc, db_ip, db_port):
+        logger = RedisLog(os.path.basename(file_id) + '.txt', db_ip, db_port)
         logger.write_file('RESULTS', 'results.txt', '%s=%.5f\n' % (file_id, best_acc))
 
 

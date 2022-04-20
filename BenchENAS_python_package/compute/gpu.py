@@ -2,6 +2,7 @@ import os, time, multiprocess
 import configparser
 import subprocess
 
+from comm.platform import linux_win, run_cmd
 from compute import Config_ini
 from compute.log import Log
 import json
@@ -30,7 +31,7 @@ def parse_nvidia_info(gpu_enabled_list, nvidia_info):
             remove_list.append(line)
         elif line_split[1] == str(num_gpu):
             num_gpu = num_gpu + 1
-        elif line_split[1][-1] != "%" and line_split[1] != 'N/A':
+        elif line_split[1][-1] != "%":
             remove_list.append(line)
     for line in remove_list:
         list1.remove(line)
@@ -121,24 +122,34 @@ def parse_nvidia_info(gpu_enabled_list, nvidia_info):
     return gpus_info
 
 
-def detect_gpu():
+def detect_gpu(gpu_info, alg_name):
     info = []
     available_num = 0
-    gpu_info = Config_ini.gpu_info
     for each_work in gpu_info.keys():
         ip = gpu_info[each_work]['worker_ip']
-        Log.debug('Begin to detect on %s' % (ip))
+        Log.debug('Begin to detect on %s' % ip)
         worker_name = gpu_info[each_work]['worker_name']
         ssh_name = gpu_info[each_work]['ssh_name']
-        ssh_password = gpu_info[each_work]['ssh_password']
+        ssh_pwd = gpu_info[each_work]['ssh_password']
         gpus = gpu_info[each_work]['gpu']
+        port = gpu_info[each_work]['port']
 
-        _cmd = 'sshpass -p \'%s\' ssh %s@%s nvidia-smi' % (ssh_password, ssh_name, worker_name)
-        nvidia_info = subprocess.Popen(_cmd, stdout=subprocess.PIPE, shell=True).stdout.read().decode()
-        Log.debug('Perform the cmd \'%s\'' % (_cmd))
-        Log.debug('Response:\n%s' % (nvidia_info))
-        Log.debug('Start to parse the gpu info from %s for operating the tables' % (ip))
-        gpus_info = parse_nvidia_info(gpus, nvidia_info)
+        system_ver = linux_win(ssh_name, ssh_pwd, ip, port)
+        if system_ver == 'linux':
+            _cmd = 'nvidia-smi'
+        elif system_ver == 'windows':
+            path = 'C:\\Program Files\\NVIDIA Corporation\\NVSMI'  #
+            _cmd = 'C: & cd %s & nvidia-smi.exe' % path
+        else:
+            Log.debug('Current system %s is not windows or linux!' % ip)
+            continue
+        nvidia_info = run_cmd(ssh_name, ssh_pwd, ip, port, _cmd)
+        Log.info('Perform the cmd \'%s\'' % _cmd)
+        Log.info('Response:\n%s' % nvidia_info[0])
+        if len(nvidia_info[1]) > 0:
+            Log.debug('Error:%s' % (nvidia_info[1]))
+
+        gpus_info = parse_nvidia_info(gpus, nvidia_info[0])
 
         for each_info in gpus_info:
             _item = {
@@ -150,9 +161,9 @@ def detect_gpu():
             info.append(_item)
             if _item['status'] == 0:
                 available_num = available_num + 1
-    Log.info('%d available GPUs have been detected' % (available_num))
-    Log.debug('Start to operate the database tables')
-    add_info(gpu_info, info)
+    Log.info('%d available GPUs have been detected' % available_num)
+    Log.info('Start to operate the database tables')
+    add_info(gpu_info, info, alg_name)
 
 
 def locate_gpu_to_be_used():
@@ -180,11 +191,11 @@ def gpus_all_available():
     num_assigned_gpus = 0
     for each_item in assigned_gpus.values():
         num_assigned_gpus += len(each_item['gpu'])
-    Log.debug('%d GPUs were assigned for this experiment' % (num_assigned_gpus))
+    Log.debug('%d GPUs were assigned for this experiment' % num_assigned_gpus)
 
     num_available_gpus_in_db = len(get_available_gpus())
 
-    Log.debug('%d GPUS were available in the database' % (num_available_gpus_in_db))
+    Log.debug('%d GPUS were available in the database' % num_available_gpus_in_db)
 
     if num_assigned_gpus == num_available_gpus_in_db:
         return True
@@ -194,12 +205,14 @@ def gpus_all_available():
 
 def run_detect_gpu():
     Log.info('Start to detect GPUs')
+    gpu_info = Config_ini.gpu_info
+    alg_name = Config_ini.alg_name
 
     def fun1():
         while True:
             Log.debug('start to periodicity detect GPU ...')
-            detect_gpu()
-            time.sleep(60)
+            detect_gpu(gpu_info, alg_name)
+            time.sleep(150)
 
     p = multiprocess.Process(target=fun1, args=())
     p.start()

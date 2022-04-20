@@ -31,9 +31,9 @@ class FitnessEvaluate(object):
                 _acc = _map[_key]
                 self.log.info(
                     'Hit the cache for %s, key:%s, acc:%.5f, assigned_acc:%.5f' % (indi.id, _key, _acc, indi.acc))
-                CacheToResultFile.do(indi.id, _acc)
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                 indi.acc_mean = _acc
-        self.log.info('Total hit %d individuals for fitness' % (_count))
+        self.log.info('Total hit %d individuals for fitness' % _count)
 
         for indi in self.individuals:
             if indi.acc_mean < 0:
@@ -44,7 +44,7 @@ class FitnessEvaluate(object):
         all_have_been_evaluated = False
         while all_have_been_evaluated is not True:
             # print('All have been evaluated flag ', all_have_been_evaluated)
-            time.sleep(120)
+            time.sleep(60)
             all_have_been_evaluated = gpus_all_available()
 
         # set the fitness values to each of individual

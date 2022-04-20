@@ -66,6 +66,13 @@ class Utils(object):
             f.write(_str)
 
     @classmethod
+    def save_population_after_crossover(cls, _str, gen_no):
+        file_name = '%s/crossover_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
+        file_name = cls.path_replace(file_name)
+        with open(file_name, 'w') as f:
+            f.write(_str)
+
+    @classmethod
     def save_population_after_mutation(cls, _str, gen_no):
         file_name = '%s/mutation_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
         file_name = cls.path_replace(file_name)
@@ -109,7 +116,6 @@ class Utils(object):
                     elif line.startswith('flop'):
                         indi.flop = float(line[5:])
                     elif line.startswith('genome'):
-                        print(line)
                         l = list(line[8:])
                         while ' ' in l:
                             l.remove(' ')
@@ -120,7 +126,6 @@ class Utils(object):
                         for i in l:
                             genome.append(int(i))
                     elif line.startswith('0') or line.startswith('1'):
-                        print(line)
                         l = list(line)
                         while ' ' in l:
                             l.remove(' ')
@@ -169,9 +174,9 @@ class Utils(object):
         _str.append(current_time)
         _str.append('"""')
         _str.extend(part1)
-        _str.append('        %s' % (line1))
-        _str.append('        %s' % (line2))
-        _str.append('        %s' % (line3))
+        _str.append('        %s' % line1)
+        _str.append('        %s' % line2)
+        _str.append('        %s' % line3)
         _str.extend(part2)
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)

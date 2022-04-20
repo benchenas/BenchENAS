@@ -10,21 +10,21 @@ from read_best_acc import read_result, write_result
 def run(alg_list, train_list, gpu_info_list, search_space='micro'):
     amend(alg_list, train_list, gpu_info_list)
     from compute.pid_manager import PIDManager
-    alg_name = alg_list['algorithm']
-    name = '_'.join([alg_name, train_list['dataset']])
-    algs = importlib.import_module('algs.' + alg_name + '.main')
+    alg = alg_list['algorithm']
+    name = Config_ini.alg_name
+    algs = importlib.import_module('algs.' + alg + '.main')
     try:
-        if alg_name != 'nsga_net':
+        if alg != 'nsga_net':
             r = algs.Run(alg_list, train_list, gpu_info_list)
         else:
             r = algs.Run(alg_list, train_list, gpu_info_list, search_space)
         r.do()
         best_acc = read_result(name)
-        print(best_acc)
-        if alg_name == 'nsga_net':
-            alg_name = alg_name + '_' + search_space
+        print('best_acc: ', best_acc)
+        if alg == 'nsga_net':
+            alg = alg + '_' + search_space
 
-        write_result(alg_name, best_acc)
+        write_result(alg, train_list['dataset'], best_acc)
     except KeyboardInterrupt:
         Log.info('Receive KeyboardInterrupt SIGNAL')
         Log.info('Wait to exit')
@@ -34,17 +34,21 @@ def run(alg_list, train_list, gpu_info_list, search_space='micro'):
         Log.info('Good bye')
 
 
-# if __name__ == '__main__':
-#     alg_list = {'algorithm': 'hierarchical_representations', 'max_gen': 20, 'pop_size': 20,
-#                 'log_server': 'xx.xx.xx.xx', 'log_server_port': 6379,
-#                 'exe_path': '/home/xxx/anaconda3/bin/python3'}
-#
-#     train_list = {'dataset': 'customized', 'data_dir': '/home/xiaoyang/eye_dataset',
-#                  'img_input_size': [244, 244, 3], 'optimizer': 'SGD', 'lr': 0.025,
-#                  'batch_size': 64, 'total_epoch': 5, 'lr_strategy': 'ExponentialLR'}
-#                               
+if __name__ == '__main__':
+#     alg_list = {'algorithm': 'regularized_evolution', 'max_gen': 2, 'pop_size': 6,
+#                 'log_server': '192.168.50.202', 'log_server_port': 6379}
+# 
+#     train_list = {'dataset': 'MNIST', 'data_dir': 'E:\\PYPI\\eye_dataset',
+#                   'img_input_size': [244, 244, 3], 'optimizer': 'SGD', 'lr': 0.025,
+#                   'batch_size': 48, 'total_epoch': 2, 'lr_strategy': 'ExponentialLR'}
+# 
 #     gpu_info_list = {}
-#     content = {'worker_ip': 'xx.xx.xx.xx', 'worker_name': 'cuda', 'ssh_name': 'xxx',
-#                'ssh_password': '.123456', 'gpu': [1, 2]}
-#     gpu_info_list['xx.xx.xx.xx'] = content
+#     content1 = {'worker_ip': '192.168.50.201', 'worker_name': 'cuda1', 'ssh_name': 'xiaoyang',
+#                 'ssh_password': '6789^&*(', 'gpu': [0], 'port': 22,
+#                 'exe_path': '/home/xiaoyang/anaconda3/bin/python3'}
+#     # content2 = {'worker_ip': '192.168.50.115', 'worker_name': 'cuda', 'ssh_name': 'lenovo',
+#     #             'ssh_password': '6789^&*(', 'gpu': [0], 'port': 22,
+#     #             'exe_path': 'python3'}
+#     gpu_info_list['192.168.50.201'] = content1
+#     # gpu_info_list['192.168.50.115'] = content2
 #     run(alg_list, train_list, gpu_info_list)

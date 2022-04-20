@@ -1,4 +1,6 @@
 import time
+
+from compute import Config_ini
 from compute.process import dispatch_to_do
 from compute.gpu import gpus_all_available
 from comm.utils import CacheToResultFile
@@ -129,7 +131,7 @@ class FitnessEvaluate(object):
                 _count += 1
                 _acc = _map[_key]
                 self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (_key, _key, float(_acc)))
-                CacheToResultFile.do(indi.id, float(_acc))
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                 indi.acc = float(_acc)
 
         for indi in self.individuals:

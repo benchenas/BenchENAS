@@ -1,4 +1,6 @@
 import time
+
+from compute import Config_ini
 from compute.process import dispatch_to_do
 from compute.gpu import gpus_all_available
 from comm.utils import CacheToResultFile
@@ -90,7 +92,7 @@ def decode_generate_file(individual, test=False):
     stages = StatusUpdateTool.get_stages()
     num_nodes = StatusUpdateTool.get_num_nodes()
     L, BITS_INDICES, _ = StatusUpdateTool.get_params()
-    ic = 3
+    ic = StatusUpdateTool.get_input_channel()
     oc = 20
     for stage_index, stage_name, num_node, bpi in zip(range(0, len(stages)), stages, num_nodes, BITS_INDICES):
         indv = individual.indi[bpi[0]:bpi[1]]
@@ -153,16 +155,13 @@ class FitnessEvaluate(object):
         _map = Utils.load_cache_data()
         _count = 0
         for indi in self.individuals:
-            if indi.acc > 0:
-                CacheToResultFile.do(indi.id, float(indi.acc))
-            else:
-                _key, _str = indi.uuid()
-                if _key in _map:
-                    _count += 1
-                    _acc = _map[_key]
-                    self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (indi.id, _key, float(_acc)))
-                    CacheToResultFile.do(indi.id, float(_acc))
-                    indi.acc = float(_acc)
+            _key, _str = indi.uuid()
+            if _key in _map:
+                _count += 1
+                _acc = _map[_key]
+                self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (indi.id, _key, float(_acc)))
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
+                indi.acc = float(_acc)
 
         for indi in self.individuals:
             if indi.acc < 0:

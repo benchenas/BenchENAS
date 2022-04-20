@@ -97,22 +97,24 @@ class MNIST(BaseDataloader):
         assert ((valid_size >= 0) and (valid_size <= 1)), error_msg
 
         normalize = transforms.Normalize(
-            mean=[0.5, 0.5, 0.5],
-            std=[0.5, 0.5, 0.5],
+            mean=[0.5], std=[0.5],
         )
 
         # define transforms
         valid_transform = transforms.Compose([
+            transforms.ToTensor(),
             normalize,
         ])
         if augment:
             train_transform = transforms.Compose([
                 transforms.RandomCrop(28, padding=4),
                 transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
                 normalize,
             ])
         else:
             train_transform = transforms.Compose([
+                transforms.ToTensor(),
                 normalize,
             ])
 
@@ -173,8 +175,7 @@ class MNIST(BaseDataloader):
         - data_loader: main set iterator.
         """
         normalize = transforms.Normalize(
-            mean=[0.5, 0.5, 0.5],
-            std=[0.5, 0.5, 0.5],
+            mean=[0.5], std=[0.5],
         )
 
         # define transform
@@ -220,8 +221,7 @@ class MNIST(BaseDataloader):
         - data_loader: main set iterator.
         """
         normalize = transforms.Normalize(
-            mean=[0.5, 0.5, 0.5],
-            std=[0.5, 0.5, 0.5],
+            mean=[0.5], std=[0.5],
         )
 
         # define transform
@@ -241,3 +241,31 @@ class MNIST(BaseDataloader):
         )
 
         return data_loader
+
+    def __load_dataset(self):
+        root = os.path.expanduser('~/dataset/mnist/')
+        normalize = transforms.Normalize(
+            mean=[0.5], std=[0.5],
+        )
+
+        # define transform
+        train_transform = transforms.Compose([
+            transforms.RandomCrop(28, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        dataset_train = datasets.MNIST(
+            root=root, train=True,
+            download=self.download, transform=train_transform,
+        )
+        test_transform = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        dataset_test = datasets.MNIST(
+            root=root, train=False,
+            download=self.download, transform=test_transform,
+        )

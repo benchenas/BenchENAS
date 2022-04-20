@@ -1,1 +1,1 @@
-name = "compute"
+name='compute'

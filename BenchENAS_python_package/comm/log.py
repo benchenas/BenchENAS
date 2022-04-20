@@ -2,8 +2,10 @@ import logging
 import sys
 import os
 
+
 class Log(object):
     _logger = None
+
     @classmethod
     def __get_logger(cls):
         if Log._logger is None:
@@ -26,11 +28,11 @@ class Log(object):
     @classmethod
     def info(cls, _str):
         cls.__get_logger().info(_str)
-        
+
     @classmethod
     def warn(cls, _str):
         cls.__get_logger().warn(_str)
-        
+
     @classmethod
     def debug(cls, _str):
         cls.__get_logger().debug(_str)

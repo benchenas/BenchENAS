@@ -151,7 +151,7 @@ class CIFAR10(BaseDataloader):
             num_workers=num_workers, pin_memory=pin_memory,
         )
 
-        return (train_loader, valid_loader)
+        return train_loader, valid_loader
 
     def __get_train_loader(self,
                            data_dir,
@@ -244,3 +244,33 @@ class CIFAR10(BaseDataloader):
         )
 
         return data_loader
+
+    def __load_dataset(self):
+        root = os.path.expanduser('~/dataset/cifar10/')
+        normalize = transforms.Normalize(
+            mean=[0.4914, 0.4822, 0.4465],
+            std=[0.2023, 0.1994, 0.2010],
+        )
+
+        # define transform
+        train_transform = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        test_transform = transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])
+
+        dataset_train = datasets.CIFAR10(
+            root=root, train=True,
+            download=True, transform=train_transform,
+        )
+
+        dataset_test = datasets.CIFAR10(
+            root=root, train=False,
+            download=True, transform=test_transform,
+        )

@@ -23,8 +23,8 @@ class Individual(object):
 
     def __str__(self):
         _str = []
-        _str.append('indi:%s' % (self.id))
-        _str.append('Acc:%.5f' % (self.acc))
+        _str.append('indi:%s' % self.id)
+        _str.append('Acc:%.5f' % self.acc)
         s = "["
         for i in self.indi:
             s = s + str(i)

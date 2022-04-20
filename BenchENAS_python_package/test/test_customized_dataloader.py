@@ -1,6 +1,7 @@
 import os
-import sys
+
 import numpy as np
+import sys
 
 from compute import Config_ini
 from train.dataset.comm_data import FDataLoader
@@ -10,8 +11,8 @@ def test_customized_loader():
     Config_ini.batch_size = 50
     Config_ini.total_epoch = 50
     os.chdir(sys.path[0])
+
     data_dir = os.path.join(os.getcwd(), 'example/eye_dataset')
-    print('dir', data_dir)
     Config_ini.dataset = 'customized'
     Config_ini.data_dir = data_dir
     Config_ini.img_input_size = [244, 244, 3]
@@ -30,3 +31,5 @@ def test_customized_loader():
     valid_loader = dataloader_cls_ins.get_val_dataloader()
     assert len(train_dataloader) == np.ceil((1 - dataloader_cls_ins.valid_size) * 100 / 50)
     assert len(valid_loader) == np.ceil(dataloader_cls_ins.valid_size * 100 / 50)
+
+

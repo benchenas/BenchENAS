@@ -1,5 +1,6 @@
 import configparser
 import os
+
 from compute import Config_ini
 from train.utils import TrainConfig
 
@@ -29,12 +30,12 @@ class StatusUpdateTool(object):
 
     @classmethod
     def get_N(cls):
-        rs = cls.__read_ini_file('settings', 'N')
+        rs = cls.__read_ini_file('settings', 'n')
         return int(rs)
 
     @classmethod
     def get_F(cls):
-        rs = cls.__read_ini_file('settings', 'F')
+        rs = cls.__read_ini_file('settings', 'f')
         return int(rs)
 
     @classmethod
@@ -48,12 +49,13 @@ class StatusUpdateTool(object):
         return int(rs)
 
     @classmethod
-    def get_conv_size(cls):
-        rs = cls.__read_ini_file('settings', 'conv_size')
-        conv_size = []
-        for i in rs.split(','):
-            conv_size.append(int(i))
-        return conv_size
+    def get_input_channel(cls):
+        re = TrainConfig.get_data_input_size(Config_ini.dataset)
+        return re[2]
+
+    @classmethod
+    def get_num_class(cls):
+        return TrainConfig.get_out_cls_num(Config_ini.dataset)
 
     @classmethod
     def get_init_params(cls):
@@ -65,8 +67,8 @@ class StatusUpdateTool(object):
         params['N'] = cls.get_N()
         params['F'] = cls.get_F()
         params['sample_size'] = cls.get_sample_size()
-        params['conv_size'] = cls.get_conv_size()
-        params['cycles'] = cls.get_cycles()
+        # params['cycles'] = cls.get_cycles()
+        params['cycles'] = max_gen
         return params
 
     @classmethod
@@ -82,21 +84,9 @@ class StatusUpdateTool(object):
         cls.__write_ini_file(section, key, "0")
 
     @classmethod
-    def change_cycles(cls, value):
-        cls.__write_ini_file('settings', 'cycles', str(value))
-
-    @classmethod
-    def change_sample_size(cls, value):
-        cls.__write_ini_file('settings', 'sample_size', str(value))
-
-    @classmethod
     def is_evolution_running(cls):
         rs = cls.__read_ini_file('evolution_status', 'IS_RUNNING')
         if rs == '1':
             return True
         else:
             return False
-
-    @classmethod
-    def get_num_class(cls):
-        return TrainConfig.get_out_cls_num(Config_ini.dataset)

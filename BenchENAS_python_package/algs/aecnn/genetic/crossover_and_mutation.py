@@ -13,6 +13,7 @@ properties of resnet/dense/pool
 firstly, three basic operations:add, remove, alter
 secondly, the particular operation is chosen based on a probability
 """
+import math
 import random
 import numpy as np
 import copy
@@ -40,9 +41,14 @@ class CrossoverAndMutation(object):
         mutation = Mutation(self.offspring, self.prob_mutation, self.log)
         mutation.do_mutation()
 
+        a = [range(len(self.offspring))]
+        if len(self.offspring) != len(self.individuals):
+            np.random.shuffle(a)
+            a = a[0:len(self.individuals)]
         for i, indi in enumerate(self.offspring):
-            indi_no = 'indi%05d_%05d' % (self.gen_no, i)
-            indi.id = indi_no
+            if i in a:
+                indi_no = 'indi%05d_%05d' % (self.gen_no, a.index(i))
+                indi.id = indi_no
 
         Utils.save_population_after_mutation(self.individuals_to_string(), self.gen_no)
         return self.offspring
@@ -120,7 +126,7 @@ class Crossover(object):
     def do_crossover(self):
         _stat_param = {'offspring_new': 0, 'offspring_from_parent': 0}
         new_offspring_list = []
-        for _ in range(len(self.individuals) // 2):
+        for _ in range(math.ceil(len(self.individuals) / 2.0)):
             ind1, ind2 = self._choose_two_diff_parents()
 
             parent1, parent2 = copy.deepcopy(self.individuals[ind1]), copy.deepcopy(self.individuals[ind2])
@@ -227,7 +233,7 @@ class Mutation(object):
             else:
                 _stat_param['offspring_from_parent'] += 1
         self.log.info(
-            'MUTATION-mutated individuals:%d[ADD:%2d,REMOVE:%2d,ALTER:%2d,RESNET_OUT_CHANNEL:%2d, RESNET_AMOUNT:%2d, DENSENET_AMOUNT:%2d, POOLING_TYPE:%2d, no_changes:%d' % (
+            'MUTATION-mutated individuals:%d[ADD:%2d,REMOVE:%2d,ALTER:%2d,RESNET_OUT_CHANNEL:%2d, RESNET_AMOUNT:%2d, DENSENET_AMOUNT:%2d, POOLING_TYPE:%2d, no_changes:%d]' % (
                 _stat_param['offspring_new'],
                 _stat_param['ADD'], _stat_param['REMOVE'], _stat_param['ALTER'], _stat_param['RESNET_OUT_CHANNEL'],
                 _stat_param['RESNET_AMOUNT'], _stat_param['DENSENET_AMOUNT'], _stat_param['POOLING_TYPE'],

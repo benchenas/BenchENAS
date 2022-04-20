@@ -29,7 +29,6 @@ class Config(object):
         return config[self.section]
 
 
-
 class TrainConfig(object):
 
     def __init__(self):
@@ -81,3 +80,5 @@ class TrainConfig(object):
             from train.dataset.comm_data import FDataLoader
             dataloader_cls_ins = FDataLoader()
         return dataloader_cls_ins.input_size
+
+

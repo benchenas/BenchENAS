@@ -34,10 +34,10 @@ def init_db():
                                remark                text,
                                time                  VARCHAR(100));'''
 
-            Log.debug('Init the gpu_list table ...')
-            conn.execute(_create_table_sql % ('gpu_list'))
-            Log.debug('Init the gpu_arxiv_list table ...')
-            conn.execute(_create_table_sql % ('gpu_arxiv_list'))
+            Log.info('Init the gpu_list table ...')
+            conn.execute(_create_table_sql % 'gpu_list')
+            Log.info('Init the gpu_arxiv_list table ...')
+            conn.execute(_create_table_sql % 'gpu_arxiv_list')
 
             # init the gpu_use table
             _create_table_sql = '''CREATE TABLE gpu_use
@@ -48,7 +48,7 @@ def init_db():
                                    status                 VARCHAR(5),
                                    script_name            VARCHAR(250),
                                    time                   VARCHAR(100));'''
-            Log.debug('Init the gpu_use table ...')
+            Log.info('Init the gpu_use table ...')
             conn.execute(_create_table_sql)
 
             conn.commit()
@@ -68,7 +68,7 @@ def check_table(conn, table_name):
     return rs
 
 
-def add_info(gpu_info, info):
+def add_info(gpu_info, info, alg_name):
     '''
     Two tables will be operated, gpu_list and gpu_arxiv_list
     all the gpu infomation should be added to gpu_arxiv_list
@@ -77,9 +77,9 @@ def add_info(gpu_info, info):
     conn = sqlite3.connect(get_db_path())
     cu = conn.cursor()
     time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    alg_name = Config_ini.alg_name
+    Config_ini.alg_name = alg_name
     sql_gpu_list_del = 'delete from gpu_list where alg_name = \'%s\'' % alg_name
-    Log.debug('Execute sql: %s' % (sql_gpu_list_del))
+    Log.info('Execute sql: %s' % sql_gpu_list_del)
     cu.execute(sql_gpu_list_del)
     for each_one in info:
 
@@ -94,13 +94,13 @@ def add_info(gpu_info, info):
             sql_gpu_list = 'INSERT INTO gpu_list(alg_name, worker, ssh_name, ssh_password, gpu_id, status, remark, time) values (\'%s\', \'%s\', \'%s\', \'%s\', %d, %d, \'%s\', \'%s\')' % (
                 alg_name, worker, ssh_name, ssh_password, gpu_id, status, remark, time_str
             )
-            Log.debug('Execute sql: %s' % (sql_gpu_list))
+            Log.info('Execute sql: %s' % sql_gpu_list)
             cu.execute(sql_gpu_list)
 
         sql_gpu_archiv_list = 'INSERT INTO gpu_arxiv_list(alg_name, worker, ssh_name, ssh_password, gpu_id, status, remark, time) values (\'%s\', \'%s\', \'%s\', \'%s\', %d, %d, \'%s\', \'%s\')' % (
             alg_name, worker, ssh_name, ssh_password, gpu_id, status, remark, time_str
         )
-        Log.debug('Execute sql: %s' % (sql_gpu_archiv_list))
+        Log.info('Execute sql: %s' % sql_gpu_archiv_list)
         cu.execute(sql_gpu_archiv_list)
     conn.commit()
     conn.close()
@@ -111,7 +111,7 @@ def get_available_gpus():
     alg_name = Config_ini.alg_name
     sql = 'select id, worker as worker_ip, gpu_id, ssh_name, ssh_password from gpu_list where alg_name=\'%s\'' % (
         alg_name)
-    Log.debug('Execute sql: %s' % (sql))
+    Log.info('Execute sql: %s' % sql)
     conn = sqlite3.connect(get_db_path())
     cu = conn.cursor()
     cu.execute(sql)  # 执行sql语句
@@ -122,7 +122,7 @@ def get_available_gpus():
 
 def confirmed_used_gpu(ids):
     sql = 'delete from gpu_list where id in (%s)' % (','.join(ids))
-    Log.debug('Execute sql: %s' % (sql))
+    Log.info('Execute sql: %s' % sql)
     conn = sqlite3.connect(get_db_path())
     cu = conn.cursor()
     cu.execute(sql)

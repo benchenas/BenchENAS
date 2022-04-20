@@ -44,14 +44,17 @@ class EvolveCNN(object):
         for indi in self.pops.individuals:
             indi.flop = calculate_flop(indi)
             if indi.acc == -1:
-                indi.acc = fitness_map[indi.id]
+                if indi.id in fitness_map:
+                    indi.acc = fitness_map[indi.id]
+                else:
+                    indi.acc = 0.
         Utils.save_population_at_begin(str(self.pops), self.pops.gen_no)
 
     def survivial(self):
         self.pops.individuals = Survival(self.pops.individuals, self.params).do()
 
     def crossover_and_mutation(self, cur):
-        cm = CrossoverAndMutation(self.pops.individuals, self.parent_pops, self.params)
+        cm = CrossoverAndMutation(self.pops.individuals, self.parent_pops, self.params, self.pops.gen_no)
         offspring = cm.process()
         self.parent_pops = copy.deepcopy(self.pops)
         next_gen_pops = Population(cur, self.pops.params)
@@ -59,6 +62,7 @@ class EvolveCNN(object):
         for indi in next_gen_pops.individuals:
             indi.reset()
         self.pops = next_gen_pops
+        Utils.save_population_after_mutation(str(self.pops), self.pops.gen_no)
 
     def environment_selection(self):
         n_select = math.ceil(self.params['n_offsprings'] / 2)
@@ -80,7 +84,7 @@ class EvolveCNN(object):
             Log.info('Initialize from existing population data')
             gen_no = Utils.get_newest_file_based_on_prefix('begin')
             if gen_no is not None:
-                Log.info('Initialize from %d-th generation' % (gen_no))
+                Log.info('Initialize from %d-th generation' % gen_no)
                 pops = Utils.load_population('begin', gen_no)
                 self.pops = pops
             else:
@@ -89,24 +93,24 @@ class EvolveCNN(object):
             gen_no = 0
             Log.info('Initialize...')
             self.initialize_population()
-        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % (gen_no))
+        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % gen_no)
         self.fitness_evaluate()
-        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (gen_no))
+        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % gen_no)
         for curr_gen in range(gen_no, max_gen):
             self.params['gen_no'] = curr_gen
             self.pops.gen_no = curr_gen
-            Log.info('EVOLVE[%d-gen]-Begin to survival' % (curr_gen))
+            Log.info('EVOLVE[%d-gen]-Begin to survival' % curr_gen)
             self.survivial()
-            Log.info('EVOLVE[%d-gen]-Finish the survival' % (curr_gen))
-            Log.info('EVOLVE[%d-gen]-Begin to selecte' % (curr_gen))
+            Log.info('EVOLVE[%d-gen]-Finish the survival' % curr_gen)
+            Log.info('EVOLVE[%d-gen]-Begin to selecte' % curr_gen)
             self.environment_selection()
-            Log.info('EVOLVE[%d-gen]-Finish the selection' % (curr_gen))
-            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % (curr_gen))
+            Log.info('EVOLVE[%d-gen]-Finish the selection' % curr_gen)
+            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % curr_gen)
             self.crossover_and_mutation(curr_gen)
             Log.info('EVOLVE[%d-gen]-Finish the Crossover and mutation')
-            Log.info('EVOLVE[%d-gen]-Begin to evaluate' % (curr_gen))
+            Log.info('EVOLVE[%d-gen]-Begin to evaluate' % curr_gen)
             self.fitness_evaluate()
-            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (curr_gen))
+            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % curr_gen)
         StatusUpdateTool.end_evolution()
 
 

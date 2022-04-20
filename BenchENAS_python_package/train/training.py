@@ -22,7 +22,7 @@ class TrainModel(object):
         # module_name = 'scripts.%s'%(file_name)
         module_name = file_id
         if module_name in sys.modules.keys():
-            self.log_record('Module:%s has been loaded, delete it' % (module_name))
+            self.log_record('Module:%s has been loaded, delete it' % module_name)
             del sys.modules[module_name]
             _module = importlib.import_module('.', module_name)
         else:
@@ -130,9 +130,9 @@ class RunModel(object):
         dt.strftime('%Y-%m-%d %H:%M:%S')
         self.logger.info('[%s]-%s' % (dt, _str))
 
-    def do_work(self, gpu_id, file_id, uuid):
+    def do_work(self, gpu_id, file_id, uuid, db_ip, db_port):
         os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
-        logger = RedisLog(os.path.basename(file_id) + '.txt')
+        logger = RedisLog(os.path.basename(file_id) + '.txt', db_ip, db_port)
         best_acc = 0.0
         try:
             m = TrainModel(file_id, logger)
@@ -142,10 +142,10 @@ class RunModel(object):
         except BaseException as e:
             msg = traceback.format_exc()
             print('Exception occurs, file:%s, pid:%d...%s' % (file_id, os.getpid(), str(e)))
-            print('%s' % (msg))
+            print('%s' % msg)
             dt = datetime.now()
             dt.strftime('%Y-%m-%d %H:%M:%S')
-            _str = 'Exception occurs:%s' % (msg)
+            _str = 'Exception occurs:%s' % msg
             logger.info('[%s]-%s' % (dt, _str))
         finally:
             dt = datetime.now()
@@ -159,7 +159,6 @@ class RunModel(object):
             logger.write_file('CACHE', 'cache.txt', _str)
 
 
-
 if __name__ == "__main__":
     ls_dataset = ['MNIST', 'CIFAR10', 'CIFAR100']
     _parser = argparse.ArgumentParser()
@@ -167,7 +166,7 @@ if __name__ == "__main__":
     _parser.add_argument("-file_id", "--file_id", help="file id", type=str)
     _parser.add_argument("-uuid", "--uuid", help="uuid of the individual", type=str)
 
-    _parser.add_argument("-super_node_ip", "--super_node_ip", help="ip of the super node", type=str)
+    _parser.add_argument("-super_node_ip", "--super_node_ip", help="ip of the redis node", type=str)
     _parser.add_argument("-super_node_port", "--super_node_port", help="port of the redis", type=str)
     _parser.add_argument("-super_node_pid", "--super_node_pid", help="pid on the super node", type=str)
     _parser.add_argument("-worker_node_ip", "--worker_node_ip", help="ip of this worker node", type=str)
@@ -202,6 +201,6 @@ if __name__ == "__main__":
 
     PIDManager.WorkerEnd.add_worker_pid(_args.super_node_ip, _args.super_node_pid, _args.worker_node_ip)
 
-    RunModel().do_work(_args.gpu_id, _args.file_id, _args.uuid)
+    RunModel().do_work(_args.gpu_id, _args.file_id, _args.uuid, _args.super_node_ip, _args.super_node_port)
 
     PIDManager.WorkerEnd.remove_worker_pid(_args.super_node_ip, _args.super_node_pid, _args.worker_node_ip)

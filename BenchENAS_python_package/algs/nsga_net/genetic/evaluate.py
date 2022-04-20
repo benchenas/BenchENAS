@@ -13,7 +13,7 @@ def decode_generate_file(individual, params, test=False):
     if params['search_space'] == 'micro':
         Utils.generate_micro_pytorch_file(individual, params, test)
     elif params['search_space'] == 'macro':
-        channels = [(3, params['init_channels']),
+        channels = [(StatusUpdateTool.get_input_channel(), params['init_channels']),
                     (params['init_channels'], 2 * params['init_channels']),
                     (2 * params['init_channels'], 4 * params['init_channels'])]
         Utils.generate_macro_pytorch_file(individual, channels, params, test)
@@ -44,7 +44,7 @@ class FitnessEvaluate(object):
                 _count += 1
                 _acc = _map[_key]
                 self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (_key, _key, float(_acc)))
-                CacheToResultFile.do(indi.id, float(_acc))
+                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
                 indi.acc = float(_acc)
         self.log.info('Total %d cache!' % _count)
 

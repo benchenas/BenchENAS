@@ -2,7 +2,10 @@ import random
 import numpy as np
 import copy
 import math
+
+from algs.nsga_net.genetic.population import Population
 from algs.nsga_net.utils.statusupdatetool import StatusUpdateTool
+from algs.nsga_net.utils.utils import Utils
 
 
 def crossover_mask(X, M):
@@ -62,14 +65,20 @@ class Crossover(object):
 
 
 class CrossoverAndMutation(object):
-    def __init__(self, indis, parents, params):
+    def __init__(self, indis, parents, params, gen_no):
         self.individuals = indis
         self.params = params
         self.parents = parents
+        self.gen_no = gen_no
 
     def process(self):
         pop = self.individuals
         off = Crossover(pop, self.parents).do()
+        next_gen_pops = Population(self.gen_no, self.params)
+        next_gen_pops.create_from_offspring(off)
+        for indi in next_gen_pops.individuals:
+            indi.reset()
+        Utils.save_population_after_crossover(str(next_gen_pops), self.gen_no)
         off = Mutation(off, self.params).do_mutation()
         return off
 

@@ -37,15 +37,16 @@ def amend(alg_list, train_list, gpu_info_list):
     global gpu_info
     global dest_dir
     global data_dir
+    ls_dataset = ['MNIST', 'CIFAR10', 'CIFAR100']
     algorithm = alg_list['algorithm']
-    if 'dataset' in train_list:
+    if train_list['dataset'] in ls_dataset:
         dataset = train_list['dataset']
         alg_name = '_'.join([algorithm, dataset])
         data_dir = None
     else:
         data_dir = train_list['data_dir']
         img_input_size = train_list['img_input_size']
-        alg_name = '_'.join([algorithm, 'Mydataset'])
+        alg_name = '_'.join([algorithm, 'customized'])
         dataset = 'customized'
 
     data_dir = train_list['data_dir']
@@ -54,8 +55,6 @@ def amend(alg_list, train_list, gpu_info_list):
     pop_size = alg_list['pop_size']
     log_server = alg_list['log_server']
     log_server_port = alg_list['log_server_port']
-    exe_path = alg_list['exe_path']
-    print(exe_path)
     optimizer = train_list['optimizer']
     batch_size = train_list['batch_size']
     total_epoch = train_list['total_epoch']

@@ -17,10 +17,8 @@ class Utils(object):
     def path_replace(cls, input_str):
         # input a str, replace '\\' with '/', because the os.path in windows return path with '\\' joining
         # please use it after creating a string with both os.path and string '/'
-        if (platform.system() == 'Windows'):
-            new_str = input_str.replace('\\', '/')
-        else:  # Linux or Mac
-            new_str = input_str
+
+        new_str = input_str.replace('\\', '/')
         return new_str
 
     @classmethod
@@ -211,11 +209,11 @@ class Utils(object):
         for index, u in enumerate(indi.units):
             if u.type == 1:
                 layer = 'self.op%d = ResNetUnit(amount=%d, in_channel=%d, out_channel=%d)' % (
-                index, u.amount, u.in_channel, u.out_channel)
+                    index, u.amount, u.in_channel, u.out_channel)
                 unit_list.append(layer)
             elif u.type == 3:
                 layer = 'self.op%d = DenseNetUnit(k=%d, amount=%d, in_channel=%d, out_channel=%d, max_input_channel=%d)' % (
-                index, u.k, u.amount, u.in_channel, u.out_channel, u.max_input_channel)
+                    index, u.k, u.amount, u.in_channel, u.out_channel, u.max_input_channel)
                 unit_list.append(layer)
 
         out_channel_list = []
@@ -229,7 +227,7 @@ class Utils(object):
                 out_channel_list.append(out_channel_list[-1])
                 image_output_size = int(image_output_size / 2)
         fully_layer_name = 'self.linear = nn.Linear(%d, %d)' % (
-        image_output_size * image_output_size * out_channel_list[-1], StatusUpdateTool.get_num_class())
+            image_output_size * image_output_size * out_channel_list[-1], StatusUpdateTool.get_num_class())
 
         forward_list = []
         for i, u in enumerate(indi.units):
@@ -258,15 +256,15 @@ class Utils(object):
         _str.append(current_time)
         _str.append('"""')
         _str.extend(part1)
-        _str.append('\n        %s' % ('#resnet and densenet unit'))
+        _str.append('\n        %s' % '#resnet and densenet unit')
         for s in unit_list:
-            _str.append('        %s' % (s))
-        _str.append('\n        %s' % ('#linear unit'))
-        _str.append('        %s' % (fully_layer_name))
+            _str.append('        %s' % s)
+        _str.append('\n        %s' % '#linear unit')
+        _str.append('        %s' % fully_layer_name)
 
         _str.extend(part2)
         for s in forward_list:
-            _str.append('        %s' % (s))
+            _str.append('        %s' % s)
         _str.extend(part3)
         # print('\n'.join(_str))
         if not test:
@@ -285,4 +283,3 @@ class Utils(object):
         f.write(_str)
         f.flush()
         f.close()
-

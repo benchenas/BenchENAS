@@ -12,10 +12,7 @@ class Utils(object):
     def path_replace(cls, input_str):
         # input a str, replace '\\' with '/', because the os.path in windows return path with '\\' joining
         # please use it after creating a string with both os.path and string '/'
-        if (platform.system() == 'Windows'):
-            new_str = input_str.replace('\\', '/')
-        else:  # Linux or Mac
-            new_str = input_str
+        new_str = input_str.replace('\\', '/')
         return new_str
 
     @classmethod

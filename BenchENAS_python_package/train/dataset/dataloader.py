@@ -1,8 +1,10 @@
 # coding=utf-8
-from compute import Config_ini
 import os
 
-class BaseDataloader():
+from compute import Config_ini
+
+
+class BaseDataloader(object):
     """Abstract class for Dataloader
     """
 
@@ -13,16 +15,15 @@ class BaseDataloader():
         self.download = True  # download the data
 
         self.augment = True  # flag of data augmentation
-        self.valid_size = 0.2  # ratio betweem number of training data and that of test data.
+        self.valid_size = None  # ratio betweem number of training data and that of test data.
         self.shuffle = True  # shuffle the dataset
         self.random_seed = 2312390  # the random seed
         self.show_sample = False  # display the samples
         self.num_workers = 1  # number of workers
         self.pin_memory = True
-        
-        self.data_dir = os.path.join('~', Config_ini.data_dir.replace('\\', '/').split('/')[-1])
-        self.img_input_size = Config_ini.img_input_size
+        self.data_dir = os.path.join('.', Config_ini.data_dir.split('/')[-1])
 
+        self.img_input_size = Config_ini.img_input_size
         self.batch_size = Config_ini.batch_size
         self.nepochs = Config_ini.total_epoch
         self.train_dataloader = None

@@ -41,8 +41,11 @@ class EvolveCNN(object):
         fitness.evaluate()
         fitness_map = GPUFitness.read()
         for indi in self.pops.individuals:
-            if indi.eval == -1 and indi.id in fitness_map.keys():
-                indi.eval = fitness_map[indi.id]
+            if indi.eval == -1:
+                if indi.id in fitness_map.keys():
+                    indi.eval = fitness_map[indi.id]
+                else:
+                    indi.eval = 0.
         evaluations = np.zeros(len(self.pops.individuals))
         for i in range(len(self.pops.individuals)):
             evaluations[i] = self.pops.individuals[i].eval
@@ -93,8 +96,8 @@ class EvolveCNN(object):
             Log.info('Initialize from existing population data')
             gen_no = Utils.get_newest_file_based_on_prefix('begin')
             if gen_no is not None:
-                Log.info('Initialize from %d-th generation' % (gen_no))
-                print('Initialize from %d-th generation' % (gen_no))
+                Log.info('Initialize from %d-th generation' % gen_no)
+                # print('Initialize from %d-th generation' % gen_no)
                 pops = Utils.load_population('begin', self.network_info, gen_no)
                 self.pops = pops
             else:
@@ -141,7 +144,6 @@ class Run(object):
         StatusUpdateTool.change_lam(alg_list['pop_size'])
 
     def do(self):
-        from algs.cgp_cnn.genetic.statusupdatetool import StatusUpdateTool
         from algs.cgp_cnn.utils import Utils
         params = StatusUpdateTool.get_init_params()
         evoCNN = EvolveCNN(params)
