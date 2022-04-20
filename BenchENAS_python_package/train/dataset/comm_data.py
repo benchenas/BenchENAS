@@ -17,7 +17,11 @@ class FDataLoader(BaseDataloader):
     def __init__(self):
         super(FDataLoader, self).__init__()
         self.root = os.path.expanduser(self.data_dir)
-        dir_list = os.listdir(self.root)
+        try:
+            dir_list = os.listdir(self.root)
+        except:
+            dir_list = os.listdir(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'example',
+                                               self.root.split('/')[-1]))
         self.train_test = 0
         if 'train' in dir_list and 'test' in dir_list:
             self.train_test = 1

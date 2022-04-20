@@ -12,9 +12,10 @@ def test_customized_loader():
     Config_ini.total_epoch = 50
     os.chdir(sys.path[0])
 
-    data_dir = os.path.join(os.getcwd(), 'example/eye_dataset')
+    # data_dir = os.path.expanduser('~/dataset/eye_dataset')
+    # print('dir', data_dir)
     Config_ini.dataset = 'customized'
-    Config_ini.data_dir = data_dir
+    Config_ini.data_dir = './example/eye_dataset'
     Config_ini.img_input_size = [244, 244, 3]
 
     dataloader_cls_ins = FDataLoader()
