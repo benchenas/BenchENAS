@@ -1,10 +1,7 @@
 import importlib
-import os
-import sys
 
 import numpy as np
 import torch
-
 
 from comm.log import Log
 from compute import Config_ini
@@ -12,7 +9,7 @@ from compute import Config_ini
 
 def config_param(alg):
     Config_ini.dataset = 'CIFAR10'
-    Config_ini.pop_size = 1
+    Config_ini.pop_size = 5
     Config_ini.max_gen = 2
     Config_ini.alg_name = alg + '_' + Config_ini.dataset
 
@@ -26,7 +23,6 @@ def test_alg_script():
     batch_size = 16
     shuffle = True
 
-    os.chdir(sys.path[0])
     for alg in algs:
         config_param(alg)
 
@@ -61,7 +57,6 @@ def test_cgp_script():
     batch_size = 16
     shuffle = True
 
-    os.chdir(sys.path[0])
     from algs.cgp_cnn.cgp_config import CgpInfoConvSet
     from algs.cgp_cnn.genetic.statusupdatetool import StatusUpdateTool
     from algs.cgp_cnn.genetic.population import Population
@@ -75,8 +70,8 @@ def test_cgp_script():
     pops.initialize()
     fitness = FitnessEvaluate(pops.individuals, Log)
     fitness.generate_to_python_file(test=True)
-    script = importlib.import_module('example.' + 'cgp_cnn_indi00000_parent')
 
+    script = importlib.import_module('example.' + 'cgp_cnn_indi00000_parent')
     inputs = torch.rand([batch_size, 3, 32, 32])
     targets = np.floor(10 * torch.rand(16))
     net = script.EvoCNNModel()
@@ -98,7 +93,6 @@ def test_nsga_script():
     batch_size = 16
     shuffle = True
 
-    os.chdir(sys.path[0])
     from algs.nsga_net.genetic.population import Population
     from algs.nsga_net.utils.statusupdatetool import StatusUpdateTool
     from algs.nsga_net.genetic.evaluate import FitnessEvaluate
@@ -138,17 +132,16 @@ def test_regularized_evo_script():
     batch_size = 16
     shuffle = True
 
-    os.chdir(sys.path[0])
     from algs.regularized_evolution.genetic.statusupdatetool import StatusUpdateTool
     from algs.regularized_evolution.genetic.population import Population
     from algs.regularized_evolution.genetic.evaluate import FitnessEvaluate
 
     params = StatusUpdateTool.get_init_params()
-    pops = Population(gen_no=0, params=params)
+    pops = Population(params=params)
     pops.initialize()
     fitness = FitnessEvaluate(pops.individuals, params, Log)
     fitness.generate_to_python_file(test=True)
-    script = importlib.import_module('example.' + 'regularized_evolution_indi00000_00000')
+    script = importlib.import_module('example.' + 'regularized_evolution_indi_00000')
 
     inputs = torch.rand([batch_size, 3, 32, 32])
     targets = np.floor(10 * torch.rand(16))

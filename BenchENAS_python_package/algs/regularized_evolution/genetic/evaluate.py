@@ -13,10 +13,10 @@ class FitnessEvaluate(object):
         self.params = params
         self.log = log
 
-    def generate_to_python_file(self):
+    def generate_to_python_file(self, test=False):
         self.log.info("Begin to generate python files")
         for indi in self.individuals:
-            Utils.generate_pytorch_file(indi, self.params)
+            Utils.generate_pytorch_file(indi, self.params, test)
         self.log.info("Finished the generation of python files")
 
     def evaluate(self):

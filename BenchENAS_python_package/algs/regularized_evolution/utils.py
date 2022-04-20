@@ -4,7 +4,7 @@ import platform
 import multiprocessing
 
 from compute import Config_ini
-from compute.file import get_algo_local_dir
+from compute.file import get_algo_local_dir, get_local_path
 import time
 import collections
 from algs.regularized_evolution.genetic.population import Population, Individual
@@ -109,7 +109,7 @@ class Utils(object):
         return part1, part2
 
     @classmethod
-    def generate_pytorch_file(cls, indi, params):
+    def generate_pytorch_file(cls, indi, params, test=False):
         geno = indi.genotype
         part1, part2 = cls.read_template()
         s1 = 'genotype = ' + str(geno)
@@ -133,7 +133,10 @@ class Utils(object):
         _str.append('        %s' % s2)
 
         _str.extend(part2)
-        file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
+        if not test:
+            file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
+        else:
+            file_name = '%s/nsga_macro_%s.py' % (os.path.join(get_local_path(), 'example'), indi.id)
         file_name = cls.path_replace(file_name)
         script_file_handler = open(file_name, 'w')
         script_file_handler.write('\n'.join(_str))
