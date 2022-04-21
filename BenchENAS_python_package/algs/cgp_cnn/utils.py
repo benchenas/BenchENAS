@@ -136,7 +136,7 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), pop.id)
         else:
-            file_name = '%s/cgp_cnn_%s.py' % (os.path.join(os.path.dirname(get_transfer_local_path()), 'example'), pop.id)
+            file_name = '%s/cgp_cnn_%s.py' % (os.path.join(get_transfer_local_path(), 'example'), pop.id)
         file_name = cls.path_replace(file_name)
         script_file_handler = open(file_name, 'w')
         script_file_handler.write('\n'.join(_str))
