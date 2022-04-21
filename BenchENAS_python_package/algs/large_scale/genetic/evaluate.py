@@ -1,7 +1,7 @@
 import hashlib, time
 from algs.large_scale.genetic.population import Population, ArcText
 import os
-from compute.file import get_algo_local_dir, get_local_path
+from compute.file import get_algo_local_dir, get_local_path, get_transfer_local_path
 from compute.process import dispatch_to_do
 from compute import Config_ini
 from compute.gpu import gpus_all_available
@@ -53,6 +53,7 @@ def write_script(_id, _str, test=False):
     if not test:
         file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), _id)
     else:
-        file_name = '%s/large_scale_%s.py' % (os.path.join(get_local_path(), 'example'), _id)
+        file_name = '%s/large_scale_%s.py' % (os.path.join(os.path.dirname(os.path.dirname(get_transfer_local_path())),
+                                                           'example'), _id)
     with open(file_name, 'w') as f:
         f.write(_str)

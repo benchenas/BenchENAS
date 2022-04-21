@@ -2,7 +2,7 @@ import configparser
 import os
 import platform
 import multiprocessing
-from compute.file import get_algo_local_dir, get_local_path
+from compute.file import get_algo_local_dir, get_local_path, get_transfer_local_path
 import time
 import os
 import numpy as np
@@ -181,7 +181,9 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
         else:
-            file_name = '%s/nsga_micro_%s.py' % (os.path.join(get_local_path(), 'example'), indi.id)
+            file_name = '%s/nsga_micro_%s.py' % (
+                os.path.join(os.path.dirname(os.path.dirname(get_transfer_local_path())),
+                             'example'), indi.id)
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))
@@ -213,7 +215,9 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
         else:
-            file_name = '%s/nsga_macro_%s.py' % (os.path.join(get_local_path(), 'example'), indi.id)
+            file_name = '%s/nsga_macro_%s.py' % (
+                os.path.join(os.path.dirname(os.path.dirname(get_transfer_local_path())),
+                             'example'), indi.id)
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))

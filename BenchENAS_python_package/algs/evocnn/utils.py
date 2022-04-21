@@ -3,7 +3,7 @@ import numpy as np
 import time
 from compute import Config_ini
 from algs.evocnn.genetic.population import Population, Individual, ConvUnit, FcUnit, PoolUnit
-from compute.file import get_algo_local_dir, get_local_path
+from compute.file import get_algo_local_dir, get_local_path, get_transfer_local_path
 from comm.log import Log
 import platform
 from algs.evocnn.genetic.statusupdatetool import StatusUpdateTool
@@ -316,7 +316,7 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
         else:
-            file_name = '%s/evocnn_%s.py' % (os.path.join(get_local_path(), 'example'), indi.id)
+            file_name = '%s/evocnn_%s.py' % (os.path.join(os.path.dirname(get_transfer_local_path()), 'example'), indi.id)
         file_name = cls.path_replace(file_name)
         script_file_handler = open(file_name, 'w')
         script_file_handler.write('\n'.join(_str))
