@@ -179,8 +179,12 @@ class Utils(object):
         if not test:
             file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
         else:
+<<<<<<< HEAD
             file_name = '%s/hierarchical_representations_%s.py' % (os.path.join(get_transfer_local_path(),
                                                                                 'example'), indi.id)
+=======
+            file_name = '%s/hierarchical_representations_%s.py' % (os.path.join(get_transfer_local_path(), 'example'), indi.id)
+>>>>>>> 9320d43c9866be39136c3a7038e2a33ed56f743a
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))
