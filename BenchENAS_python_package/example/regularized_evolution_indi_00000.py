@@ -1,5 +1,5 @@
 """
-2022-04-20  11:41:17
+2022-04-20  14:30:20
 """
 from torch.autograd import Variable
 import torch
@@ -211,6 +211,28 @@ class Cell(nn.Module):
         return out
 
 
+class AuxiliaryHeadMNIST(nn.Module):
+    def __init__(self, C, num_classes):
+        super(AuxiliaryHeadMNIST, self).__init__()
+        self.features = nn.Sequential(
+            nn.ReLU(inplace=True),
+            nn.AvgPool2d(5, stride=2, padding=0, count_include_pad=False),  # image size = 2 x 2
+            nn.Conv2d(C, 128, 1, bias=False),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(128, 768, 2, bias=False),
+            nn.BatchNorm2d(768),
+            nn.ReLU(inplace=True)
+        )
+        self.classifier = nn.Linear(768, num_classes)
+
+    def forward(self, x):
+        x = self.features(x)
+        print(x.shape)
+        x = self.classifier(x.view(x.size(0), -1))
+        return x
+
+
 class AuxiliaryHeadCIFAR(nn.Module):
 
     def __init__(self, C, num_classes):
@@ -257,9 +279,56 @@ class AuxiliaryHeadImageNet(nn.Module):
         return x
 
 
+class NetworkMNIST(nn.Module):
+    def __init__(self, C_in, C, num_classes, layers, auxiliary, genotype):
+        super(NetworkMNIST, self).__init__()
+        self._layers = layers
+        self._auxiliary = auxiliary
+
+        stem_multiplier = 3
+        C_curr = stem_multiplier * C
+        self.stem = nn.Sequential(
+            nn.Conv2d(C_in, C_curr, 3, padding=1, bias=False),
+            nn.BatchNorm2d(C_curr)
+        )
+
+        C_prev_prev, C_prev, C_curr = C_curr, C_curr, C
+        self.cells = nn.ModuleList()
+        reduction_prev = False
+        for i in range(layers):
+            if i in [layers // 3, 2 * layers // 3]:
+                C_curr *= 2
+                reduction = True
+            else:
+                reduction = False
+            cell = Cell(genotype, C_prev_prev, C_prev, C_curr, reduction, reduction_prev)
+            reduction_prev = reduction
+            self.cells += [cell]
+            C_prev_prev, C_prev = C_prev, cell.multiplier * C_curr
+            if i == 2 * layers // 3:
+                C_to_auxiliary = C_prev
+
+        if auxiliary:
+            self.auxiliary_head = AuxiliaryHeadMNIST(C_to_auxiliary, num_classes)
+        self.global_pooling = nn.AdaptiveAvgPool2d(1)
+        self.classifier = nn.Linear(C_prev, num_classes)
+
+    def forward(self, input):
+        logits_aux = None
+        s0 = s1 = self.stem(input)
+        for i, cell in enumerate(self.cells):
+            s0, s1 = s1, cell(s0, s1, self.drop_path_prob)
+            if i == 2 * self._layers // 3:
+                if self._auxiliary and self.training:
+                    logits_aux = self.auxiliary_head(s1)
+        out = self.global_pooling(s1)
+        logits = self.classifier(out.view(out.size(0), -1))
+        return logits
+
+
 class NetworkCIFAR(nn.Module):
 
-    def __init__(self, C, num_classes, layers, auxiliary, genotype):
+    def __init__(self, C_in, C, num_classes, layers, auxiliary, genotype):
         super(NetworkCIFAR, self).__init__()
         self._layers = layers
         self._auxiliary = auxiliary
@@ -267,7 +336,7 @@ class NetworkCIFAR(nn.Module):
         stem_multiplier = 3
         C_curr = stem_multiplier * C
         self.stem = nn.Sequential(
-            nn.Conv2d(3, C_curr, 3, padding=1, bias=False),
+            nn.Conv2d(C_in, C_curr, 3, padding=1, bias=False),
             nn.BatchNorm2d(C_curr)
         )
 
@@ -364,8 +433,8 @@ class NetworkImageNet(nn.Module):
 class EvoCNNModel(nn.Module):
     def __init__(self):
         super(EvoCNNModel, self).__init__()
-        genotype = Genotype(normal=[('dil_conv_5x5', 0), ('dil_conv_5x5', 1), ('dil_conv_5x5', 1), ('dil_conv_3x3', 0), ('sep_conv_3x3', 2), ('sep_conv_5x5', 0), ('sep_conv_3x3', 0), ('sep_conv_5x5', 3), ('dil_conv_3x3', 3), ('skip_connect', 0)], normal_concat=[4, 5, 6], reduce=[('dil_conv_5x5', 1), ('sep_conv_3x3', 0), ('sep_conv_5x5', 1), ('sep_conv_5x5', 0), ('skip_connect', 2), ('skip_connect', 1), ('skip_connect', 4), ('sep_conv_3x3', 2), ('sep_conv_3x3', 4), ('max_pool_3x3', 0)], reduce_concat=[3, 5, 6])
-        self.net = NetworkCIFAR(24 ,10, 3, True, genotype)
+        genotype = Genotype(normal=[('sep_conv_3x3', 0), ('skip_connect', 1), ('sep_conv_3x3', 2), ('conv_7x1_1x7', 0), ('sep_conv_3x3', 3), ('sep_conv_7x7', 1), ('sep_conv_3x3', 4), ('sep_conv_3x3', 0), ('sep_conv_7x7', 1), ('sep_conv_3x3', 4)], normal_concat=[5, 6], reduce=[('sep_conv_5x5', 1), ('skip_connect', 0), ('dil_conv_3x3', 1), ('dil_conv_5x5', 0), ('skip_connect', 1), ('max_pool_3x3', 3), ('skip_connect', 1), ('max_pool_3x3', 0), ('sep_conv_7x7', 2), ('sep_conv_7x7', 0)], reduce_concat=[4, 5, 6])
+        self.net = NetworkCIFAR(3, 24, 10, 3, True, genotype)
 
         self.net.drop_path_prob = 0.1
 

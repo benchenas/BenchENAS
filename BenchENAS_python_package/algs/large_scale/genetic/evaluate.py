@@ -53,7 +53,6 @@ def write_script(_id, _str, test=False):
     if not test:
         file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), _id)
     else:
-        file_name = '%s/large_scale_%s.py' % (os.path.join(os.path.dirname(os.path.dirname(get_transfer_local_path())),
-                                                           'example'), _id)
+        file_name = '%s/large_scale_%s.py' % (os.path.join(get_transfer_local_path(), 'example'), _id)
     with open(file_name, 'w') as f:
         f.write(_str)
