@@ -30,7 +30,11 @@ class FDataLoader(BaseDataloader):
         else:
             print('Not excepted dataset')
         self.input_size = self.img_input_size
-        self.out_cls_num = len(os.listdir(os.path.join(self.root, 'train')))
+        try:
+            self.out_cls_num = len(os.listdir(os.path.join(self.root, 'train')))
+        except:
+            self.out_cls_num = len(os.listdir(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'example',
+                                               self.root.split('/')[-1], 'train')))
 
     def get_train_dataloader(self):
         if self.train_test == 1:
