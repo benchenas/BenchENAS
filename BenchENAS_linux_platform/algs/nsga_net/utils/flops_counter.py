@@ -281,7 +281,6 @@ def add_flops_mask_variable_or_reset(module):
 
 def calculate_flop(indi):
     if indi.params['search_space'] == 'micro':
-        print(indi.genome)
         genome = micro_encoding.convert(indi.genome)
         genotype = micro_encoding.decode(genome)
         model = Network(indi.params['init_channels'], indi.params['classes'], indi.params['layers'], False, genotype)
@@ -294,7 +293,6 @@ def calculate_flop(indi):
                     (2 * indi.params['init_channels'], 4 * indi.params['init_channels'])]
         model = EvoNetwork(genotype, channels, indi.params['classes'], (32, 32), decoder='residual')
     model = add_flops_counting_methods(model)
-    print('\n'.join(['%s:%s' % item for item in model.__dict__.items()]))
     model.start_flops_count()
     random_data = torch.randn(1, 3, 32, 32)
     model(torch.autograd.Variable(random_data))
