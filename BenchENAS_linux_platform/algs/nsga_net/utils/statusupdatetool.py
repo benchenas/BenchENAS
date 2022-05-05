@@ -66,7 +66,7 @@ class StatusUpdateTool(object):
     
     @classmethod
     def get_input_channel(cls):
-        rs = TrainConfig.get_data_input_size(Config_ini.dataset)
+        rs = TrainConfig.get_data_input_size()
         return rs[2]
 
     @classmethod
