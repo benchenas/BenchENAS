@@ -3,15 +3,20 @@ import os
 import platform
 import multiprocessing
 
-from comm.log import Log
-from compute.file import get_algo_local_dir, get_local_path, get_transfer_local_path
+from compute import Config_ini
+from compute.file import get_algo_local_dir
 import time
+
 import numpy as np
 from algs.genetic_CNN.genetic.population import Population, Individual
 from algs.genetic_CNN.genetic.statusupdatetool import StatusUpdateTool
+from train.utils import TrainConfig
+from comm.log import Log
+
 
 class Utils(object):
     _lock = multiprocessing.Lock()
+
     @classmethod
     def get_lock_for_write_fitness(cls):
         return cls._lock
@@ -20,7 +25,10 @@ class Utils(object):
     def path_replace(cls, input_str):
         # input a str, replace '\\' with '/', because the os.path in windows return path with '\\' joining
         # please use it after creating a string with both os.path and string '/'
-        new_str = input_str.replace('\\', '/')
+        if (platform.system() == 'Windows'):
+            new_str = input_str.replace('\\', '/')
+        else:  # Linux or Mac
+            new_str = input_str
         return new_str
 
     @classmethod
@@ -35,7 +43,6 @@ class Utils(object):
                 _map[rs_[0]] = '%.5f' % (float(rs_[1]))
             f.close()
         return _map
-
 
     @classmethod
     def save_fitness_to_cache(cls, individuals):
@@ -62,8 +69,9 @@ class Utils(object):
             f.write(_str)
 
     @classmethod
-    def save_population_after_crossover(cls, _str, gen_no):
-        file_name = '%s/crossover_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
+    def save_population_at_evaluation(cls, _str, gen_no):
+        file_name = '%s/evaluation_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), gen_no)
+        # solve the path differences caused by different platforms
         file_name = cls.path_replace(file_name)
         with open(file_name, 'w') as f:
             f.write(_str)
@@ -143,7 +151,7 @@ class Utils(object):
         return part1, part2, part3
 
     @classmethod
-    def generate_pytorch_file(cls, net, test=False):
+    def generate_pytorch_file(cls, net):
         layer_list = []
         out_channel_list = []
         out_channel_list.append(StatusUpdateTool.get_input_channel())
@@ -154,11 +162,11 @@ class Utils(object):
                 image_output_size = int((image_output_size + 2 - u.kernel_size) / u.stride_size + 1)
             elif u.type == 1:
                 out_channel_list.append(out_channel_list[-1])
-                image_output_size = int((image_output_size - 2)/2) + 1
+                image_output_size = int((image_output_size - 2) / 2) + 1
             else:
                 out_channel_list.append(out_channel_list[-1])
         fully_layer_name = 'self.linear = nn.Linear(%d, %d)' % (
-            (image_output_size ** 2) * out_channel_list[-1], StatusUpdateTool.get_num_class())
+            (image_output_size ** 2) * out_channel_list[-1], TrainConfig.get_out_cls_num(Config_ini.dataset))
 
         # generate the forward part
         forward_list = []
@@ -209,11 +217,9 @@ class Utils(object):
                         final_list[node_name[0:2]].append(node_name)
                     elif len(final_list[node_name[0:2]]) > 0:
                         _str = 'final_%s = final_%s + %s' % (node_name[0:2], node_name[0:2],
-                                                                                        node_name)
+                                                             node_name)
                         forward_list.append(_str)
                         final_list[node_name[0:2]].append(node_name)
-
-
 
         part1, part2, part3 = cls.read_template()
         _str = []
@@ -230,12 +236,9 @@ class Utils(object):
 
         _str.extend(part2)
         for s in forward_list:
-            _str.append('        %s' % s)
+            _str.append('        %s' % (s))
         _str.extend(part3)
-        if not test:
-            file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), net.id)
-        else:
-            file_name = '%s/genetic_CNN_%s.py' % (os.path.join(get_transfer_local_path(), 'example'), net.id)
+        file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), net.id)
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))
@@ -250,4 +253,3 @@ class Utils(object):
         f.write(_str)
         f.flush()
         f.close()
-

@@ -6,6 +6,7 @@ class Individual(object):
     def __init__(self, id, params, indi=[]):
         self.id = id
         self.acc = -1
+        self.cross = -1
         self.l = params['l']
         if len(indi) == 0:
             bernoulliDist = stats.bernoulli(0.5)
@@ -62,3 +63,13 @@ class Population(object):
             indi.id = indi_no
             self.number_id = self.number_id + 1
             self.individuals.append(indi)
+
+    def relabel(self):
+        self.number_id = 0
+        for i in self.individuals:
+            i.id = 'indi%05d_%05d' % (self.gen_no, self.number_id)
+            self.number_id += 1
+
+    def recross(self):
+        for i in self.individuals:
+            i.cross = -1

@@ -16,7 +16,7 @@ def has_same_elements(x):
 
 def generate_dag(optimal_indvidual, stage_name, num_nodes):
     # create nodes for the graph
-    nodes = np.empty((0), dtype=np.str)
+    nodes = np.empty(0, dtype=np.str)
     for n in range(1, (num_nodes + 1)):
         nodes = np.append(nodes, ''.join([stage_name, "_", str(n)]))
 
@@ -87,7 +87,7 @@ class Network(object):
         self.without_towards.append(node_name)
 
 
-def decode_generate_file(individual, test=False):
+def decode_generate_file(individual):
     net = Network(individual.id)
     stages = StatusUpdateTool.get_stages()
     num_nodes = StatusUpdateTool.get_num_nodes()
@@ -132,7 +132,7 @@ def decode_generate_file(individual, test=False):
             net.add_pool('input', 2, 2)
         else:
             net.add_pool(''.join([stage_name, "_input"]), 2, 2)
-    Utils.generate_pytorch_file(net, test)
+    Utils.generate_pytorch_file(net)
 
 
 class FitnessEvaluate(object):
@@ -141,10 +141,10 @@ class FitnessEvaluate(object):
         self.individuals = individuals
         self.log = log
 
-    def generate_to_python_file(self, test=False):
+    def generate_to_python_file(self):
         self.log.info("Begin to generate python files")
         for indi in self.individuals:
-            decode_generate_file(indi, test)
+            decode_generate_file(indi)
         self.log.info("Finished the generation of python files")
 
     def evaluate(self):
@@ -155,13 +155,16 @@ class FitnessEvaluate(object):
         _map = Utils.load_cache_data()
         _count = 0
         for indi in self.individuals:
-            _key, _str = indi.uuid()
-            if _key in _map:
-                _count += 1
-                _acc = _map[_key]
-                self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (indi.id, _key, float(_acc)))
-                CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
-                indi.acc = float(_acc)
+            if indi.acc > 0:
+                CacheToResultFile.do(indi.id, float(indi.acc), Config_ini.log_server, Config_ini.log_server_port)
+            else:
+                _key, _str = indi.uuid()
+                if _key in _map:
+                    _count += 1
+                    _acc = _map[_key]
+                    self.log.info('Hit the cache for %s, key:%s, acc:%.5f' % (indi.id, _key, float(_acc)))
+                    CacheToResultFile.do(indi.id, float(_acc), Config_ini.log_server, Config_ini.log_server_port)
+                    indi.acc = float(_acc)
 
         for indi in self.individuals:
             if indi.acc < 0:
@@ -171,5 +174,5 @@ class FitnessEvaluate(object):
 
         all_have_been_evaluated = False
         while all_have_been_evaluated is not True:
-            time.sleep(60)
+            time.sleep(120)
             all_have_been_evaluated = gpus_all_available()

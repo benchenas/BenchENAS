@@ -1,12 +1,12 @@
-import sys
 import os
+import sys
+
+from compute import Config_ini
 
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(os.path.split(rootPath)[0])
 
-from compute import Config_ini
-from comm.utils import CacheToResultFile
 from algs.genetic_CNN.utils import Utils
 from algs.genetic_CNN.genetic.statusupdatetool import StatusUpdateTool
 from comm.log import Log
@@ -14,23 +14,10 @@ from comm.utils import GPUFitness
 from compute.file import get_algo_local_dir
 from algs.genetic_CNN.genetic.population import Population
 from algs.genetic_CNN.genetic.evaluate import FitnessEvaluate
-from algs.genetic_CNN.genetic.selection_operator import Selection
 from algs.genetic_CNN.genetic.crossover_and_mutation import Mutation, Crossover
 import numpy as np
 import copy
 import os
-
-
-def get_params(num_nodes):
-    L = 0
-    BITS_INDICES, l_bpi = np.empty((0, 2), dtype=np.int32), 0
-    for nn in num_nodes:
-        t = nn * (nn - 1)
-        BITS_INDICES = np.vstack([BITS_INDICES, [l_bpi, l_bpi + int(0.5 * t)]])
-        l_bpi = int(0.5 * t)
-        L += t
-    L = int(0.5 * L)
-    return L, BITS_INDICES, l_bpi
 
 
 class EvolveCNN(object):
@@ -56,57 +43,47 @@ class EvolveCNN(object):
                     indi.acc = fitness_map[indi.id]
                 else:
                     indi.acc = 0.
+        # for indi in self.pops.individuals:
+        #     if indi.acc == -1:
+        #         indi.acc = random.random()
 
     def crossover_and_mutation(self):
         after_cross = Crossover(self.pops.individuals, self.params['crossover_prob'], Log).crossover()
-        Utils.save_population_after_crossover(str(after_cross), self.pops.gen_no)
         cm = Mutation(after_cross, self.params['mutation_prob'], Log)
         offspring = cm.do_mutation()
-        self.parent_pops = copy.deepcopy(self.pops)
-        self.pops.number_id = len(self.pops.individuals)
-        self.pops.create_from_offspring(copy.deepcopy(offspring))
-        Utils.save_population_after_mutation(str(self.pops), self.pops.gen_no)
+        self.pops.individuals = offspring
+        self.pops.relabel()
+        self.pops.recross()
 
-    def environment_selection(self):
-        v_list = []
-        indi_list = []
-        _str = []
-        for indi in self.pops.individuals:
-            indi_list.append(indi)
-            v_list.append(indi.acc)
-            _t_str = 'Indi-%s-%.5f-%s' % (indi.id, indi.acc, indi.uuid()[0])
-            _str.append(_t_str)
-        for indi in self.parent_pops.individuals:
-            indi_list.append(indi)
-            v_list.append(indi.acc)
-            _t_str = 'Pare-%s-%.5f-%s' % (indi.id, indi.acc, indi.uuid()[0])
-            _str.append(_t_str)
+    def environment_selection(self, gen):
+        individuals = self.pops.individuals
+        lowest_acc = 1
+        for indi in individuals:
+            if indi.acc < lowest_acc:
+                lowest_acc = indi.acc
+        prob = []
+        for indi in individuals:
+            prob.append(indi.acc - lowest_acc)
+        prob = np.array(prob)
+        sum_num = np.sum(prob)
+        if sum_num == 0:
+            u = 1. / float(len(prob))
+            prob = [i+u for i in prob]
+            prob = np.array(prob)
+        else:
+            prob = prob / sum_num
+        np.random.seed(0)
 
-        _file = '%s/ENVI_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), self.pops.gen_no)
-        Utils.write_to_file('\n'.join(_str), _file)
+        new_individuals = []
+        for i in range(0, len(individuals)):
+            index = np.random.choice(list(range(0, len(individuals))), p=prob.ravel())
+            new_individuals.append(individuals[index])
 
-        max_index = np.argmax(v_list)
-        selection = Selection()
-        selected_index_list = selection.RouletteSelection(v_list, k=self.params['pop_size'])
-        if max_index not in selected_index_list:
-            first_selectd_v_list = [v_list[i] for i in selected_index_list]
-            min_idx = np.argmin(first_selectd_v_list)
-            selected_index_list[min_idx] = max_index
-
-        next_individuals = [indi_list[i] for i in selected_index_list]
-
-        """Here, the population information should be updated, such as the gene no and then to the individual id"""
-        next_gen_pops = Population(self.pops.gen_no + 1, self.pops.params)
-        next_gen_pops.create_from_offspring(next_individuals)
-
-        self.pops = next_gen_pops
-        for _, indi in enumerate(self.pops.individuals):
-            _t_str = 'new -%s-%.5f-%s' % (indi.id, indi.acc, indi.uuid()[0])
-            _str.append(_t_str)
-        _file = '%s/ENVI_%05d.txt' % (os.path.join(get_algo_local_dir(), 'populations'), self.pops.gen_no - 1)
-        Utils.write_to_file('\n'.join(_str), _file)
-
-        Utils.save_population_at_begin(str(self.pops), self.pops.gen_no)
+        pops = Population(gen, self.params)
+        pops.individuals = new_individuals
+        pops.relabel()
+        self.pops = pops
+        Utils.save_population_at_begin(str(self.pops), gen)
 
     def create_necessary_folders(self):
         sub_folders = [os.path.join(get_algo_local_dir(), v) for v in ['populations', 'log', 'scripts']]
@@ -117,8 +94,8 @@ class EvolveCNN(object):
                 os.mkdir(each_sub_folder)
 
     def do_work(self, max_gen):
-        self.create_necessary_folders()
         Log.info('*' * 25)
+        self.create_necessary_folders()
         # the step 1
         if StatusUpdateTool.is_evolution_running():
             Log.info('Initialize from existing population data')
@@ -133,25 +110,27 @@ class EvolveCNN(object):
             gen_no = 0
             Log.info('Initialize...')
             self.initialize_population()
-        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % gen_no)
+
+        Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % (gen_no))
         self.fitness_evaluate()
-        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % gen_no)
+        Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (gen_no))
+        Utils.save_population_at_evaluation(str(self.pops), gen_no)
 
-        for curr_gen in range(gen_no, max_gen):
+        for curr_gen in range(gen_no + 1, max_gen):
             self.params['gen_no'] = curr_gen
-            self.pops.gen_no = curr_gen
-            # step 3
-            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % self.pops.gen_no)
+
+            Log.info('EVOLVE[%d-gen]-Begin to do selection' % (curr_gen))
+            self.environment_selection(curr_gen)
+            Log.info('EVOLVE[%d-gen]-Finish to do selection' % (curr_gen))
+
+            Log.info('EVOLVE[%d-gen]-Begin to crossover and mutation' % (curr_gen))
             self.crossover_and_mutation()
-            Log.info('EVOLVE[%d-gen]-Finish crossover and mutation' % self.pops.gen_no)
+            Log.info('EVOLVE[%d-gen]-Finish crossover and mutation' % (curr_gen))
 
-            Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % self.pops.gen_no)
+            Log.info('EVOLVE[%d-gen]-Begin to evaluate the fitness' % (curr_gen))
             self.fitness_evaluate()
-            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % self.pops.gen_no)
-
-            self.environment_selection()
-            Log.info('EVOLVE[%d-gen]-Finish the environment selection' % (
-                    self.pops.gen_no - 1))  # in environment_selection, gen_no increase 1
+            Log.info('EVOLVE[%d-gen]-Finish the evaluation' % (curr_gen))
+            Utils.save_population_at_evaluation(str(self.pops), curr_gen)
         StatusUpdateTool.end_evolution()
 
 
@@ -165,5 +144,4 @@ class Run(object):
         params = StatusUpdateTool.get_init_params()
         evoCNN = EvolveCNN(params)
         evoCNN.do_work(params['max_gen'])
-
 

@@ -1,5 +1,6 @@
 import configparser
 import os
+
 import numpy as np
 
 from compute import Config_ini
@@ -36,20 +37,6 @@ class StatusUpdateTool(object):
         for i in rs.split(','):
             num_nodes.append(int(i))
         return num_nodes
-
-    @classmethod
-    def get_num_class(cls):
-        return TrainConfig.get_out_cls_num(Config_ini.dataset)
-
-    @classmethod
-    def get_input_size(cls):
-        rs = TrainConfig.get_data_input_size(Config_ini.dataset)
-        return rs[0]
-
-    @classmethod
-    def get_input_channel(cls):
-        rs = TrainConfig.get_data_input_size(Config_ini.dataset)
-        return rs[2]
 
     @classmethod
     def get_stages(cls):
@@ -101,6 +88,18 @@ class StatusUpdateTool(object):
         section = 'evolution_status'
         key = 'IS_RUNNING'
         cls.__write_ini_file(section, key, "1")
+
+    @classmethod
+    def get_input_size(cls):
+        return TrainConfig.get_data_input_size(Config_ini.dataset)[0]
+
+    @classmethod
+    def get_input_channel(cls):
+        return TrainConfig.get_data_input_size(Config_ini.dataset)[2]
+
+    @classmethod
+    def get_num_class(cls):
+        return TrainConfig.get_out_cls_num(Config_ini.dataset)
 
     @classmethod
     def end_evolution(cls):
