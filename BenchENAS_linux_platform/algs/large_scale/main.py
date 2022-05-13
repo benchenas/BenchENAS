@@ -56,9 +56,17 @@ class EvolveCNN():
         del worse_dna
         self.pops.create_from_offspring(better_dna)
         Utils.save_population_at_begin(str(self.pops), self.pops.gen_no)
+        
+    def create_necessary_folders(self):
+        sub_folders = [os.path.join(get_algo_local_dir(), v) for v in ['populations', 'log', 'scripts']]
+        if not os.path.exists(get_algo_local_dir()):
+            os.mkdir(get_algo_local_dir())
+        for each_sub_folder in sub_folders:
+            if not os.path.exists(each_sub_folder):
+                os.mkdir(each_sub_folder)
 
     def do_work(self, max_gen):
-        self.initialize_population()
+        self.create_necessary_folders()   
         self.fitness_evaluate()
         gen_no = 0
         for i in range(gen_no, max_gen):
