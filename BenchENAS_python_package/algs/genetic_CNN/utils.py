@@ -4,7 +4,7 @@ import platform
 import multiprocessing
 
 from compute import Config_ini
-from compute.file import get_algo_local_dir
+from compute.file import get_algo_local_dir, get_transfer_local_path
 import time
 
 import numpy as np
@@ -151,7 +151,7 @@ class Utils(object):
         return part1, part2, part3
 
     @classmethod
-    def generate_pytorch_file(cls, net):
+    def generate_pytorch_file(cls, net, test=False):
         layer_list = []
         out_channel_list = []
         out_channel_list.append(StatusUpdateTool.get_input_channel())
@@ -238,7 +238,10 @@ class Utils(object):
         for s in forward_list:
             _str.append('        %s' % (s))
         _str.extend(part3)
-        file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), net.id)
+        if not test:
+            file_name = '%s/%s.py' % (os.path.join(get_algo_local_dir(), 'scripts'), indi.id)
+        else:
+            file_name = '%s/genetic_CNN_%s.py' % (os.path.join(get_transfer_local_path(), 'example'), indi.id)
         file_name = cls.path_replace(file_name)
         if not os.path.exists(os.path.join(get_algo_local_dir(), 'scripts')):
             os.makedirs(os.path.join(get_algo_local_dir(), 'scripts'))
