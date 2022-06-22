@@ -87,7 +87,7 @@ class Network(object):
         self.without_towards.append(node_name)
 
 
-def decode_generate_file(individual):
+def decode_generate_file(individual, test=False):
     net = Network(individual.id)
     stages = StatusUpdateTool.get_stages()
     num_nodes = StatusUpdateTool.get_num_nodes()
@@ -132,7 +132,7 @@ def decode_generate_file(individual):
             net.add_pool('input', 2, 2)
         else:
             net.add_pool(''.join([stage_name, "_input"]), 2, 2)
-    Utils.generate_pytorch_file(net)
+    Utils.generate_pytorch_file(net, test)
 
 
 class FitnessEvaluate(object):
@@ -141,10 +141,10 @@ class FitnessEvaluate(object):
         self.individuals = individuals
         self.log = log
 
-    def generate_to_python_file(self):
+    def generate_to_python_file(self, test=False):
         self.log.info("Begin to generate python files")
         for indi in self.individuals:
-            decode_generate_file(indi)
+            decode_generate_file(indi, test)
         self.log.info("Finished the generation of python files")
 
     def evaluate(self):
