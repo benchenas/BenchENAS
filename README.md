@@ -8,9 +8,7 @@
   </a>
    <a href="https://pypi.org/project/benchENAS/1.1.1/">
     <img src="https://img.shields.io/pypi/v/benchENAS?color=blue&label=pypi" alt="CircleCI" />
-  </a>
-    <a href="https://github.com/benchenas/BenchENAS/actions">
-    <img src="https://github.com/benchenas/BenchENA/workflows/CI/badge.svg" alt="Coverage" />
+  
   </a>
     <a href="https://benchenas.com/api/index.html">
     <img src="https://img.shields.io/website/http/benchenas.com/api/index.html.svg?down_color=red&down_message=offline&up_message=online" />
